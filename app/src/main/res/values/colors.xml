@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background_color">#8896B1</color>
+    <color name="text_color">#AB18B1</color>
+    <color name="floatingActionBtn">#E8DEFC</color>
+    <color name="transparent">#00050505</color>
+    <color name="backround_text_box">#A8A4A4</color>
+    <color name="button_background">#5A20E1</color>
+    <color name="button_text">#FFFFFF</color>
+    <color name="button_icon">#FFFFFF</color>
+    <color name="background">#E0E0E0</color>
+    <color name="dialogBg">#FF2B4678</color>
+
+</resources>

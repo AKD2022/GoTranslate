@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Translate</string>
+
+    <string name="heading_1">Welcome to (APP NAME)</string>
+    <string name="heading_2">To Begin...</string>
+    <string name="heading_3">Then...</string>
+    <string name="heading_4">Finally...</string>
+    <string name="heading_5">Need Help?</string>
+
+    <string name="description_1">Welcome to the app made for translation. Powered by Google ML Kit,
+    you can translate at the click of a button.</string>
+
+    <string name="description_2">Select what you would like to translate, whether it\'s text from an image,
+    text itself, or your own voice!</string>
+
+    <string name="description_3">Select what language you would like to translate from and to.</string>
+
+    <string name="description_4">Hit the translate button and watch the magic happen!</string>
+
+    <string name="description_5">If you forget how to use the app, you can come back to this at any time
+    by clicking the button on the home page.</string>
+
+</resources>

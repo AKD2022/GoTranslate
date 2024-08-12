@@ -1,0 +1,80 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context=".MainActivity">
+
+
+        <LinearLayout
+            android:id="@+id/btnLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/toImage"
+                android:layout_width="200dp"
+                android:layout_height="75dp"
+                android:textAllCaps="false"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                style="@style/BubbleButtonStyle"
+                android:text="Document"
+                app:icon="@drawable/baseline_document_scanner_24" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/toText"
+                android:layout_width="200dp"
+                android:layout_height="75dp"
+                android:textAllCaps="false"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                style="@style/BubbleButtonStyle"
+                android:text="Text"
+                app:icon="@drawable/baseline_text_snippet_24"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/toVoice"
+                android:layout_width="200dp"
+                android:layout_height="75dp"
+                android:textAllCaps="false"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                style="@style/BubbleButtonStyle"
+                android:text="Voice"
+                app:icon="@drawable/outline_mic_24"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/downloadLanguages"
+                android:layout_width="200dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="20dp"
+                android:textAllCaps="false"
+                android:layout_marginBottom="20dp"
+                style="@style/BubbleButtonStyle"
+                android:text="Download Languages"
+                app:icon="@drawable/baseline_file_download_24"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:padding="25dp">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/ft"
+                android:backgroundTint="@color/floatingActionBtn"
+                android:src="@drawable/baseline_help_outline_24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </FrameLayout>
+
+</RelativeLayout>

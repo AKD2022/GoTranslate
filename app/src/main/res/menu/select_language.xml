@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Arabic"/>
+    <item android:title="Bulgarian"/>
+    <item android:title="Bengali"/>
+    <item android:title="Catalan"/>
+    <item android:title="Czech"/>
+    <item android:title="Welsh"/>
+    <item android:title="Danish"/>
+    <item android:title="German"/>
+    <item android:title="Greek"/>
+    <item android:title="English"/>
+    <item android:title="Spanish"/>
+    <item android:title="Estonian"/>
+    <item android:title="Finnish"/>
+    <item android:title="French"/>
+    <item android:title="Gujarati"/>
+    <item android:title="Hebrew"/>
+    <item android:title="Hindi"/>
+    <item android:title="Croatian"/>
+    <item android:title="Hungarian"/>
+    <item android:title="Indonesian"/>
+    <item android:title="Icelandic"/>
+    <item android:title="Italian"/>
+    <item android:title="Japanese"/>
+    <item android:title="Kannada"/>
+    <item android:title="Korean"/>
+    <item android:title="Lithuanian"/>
+    <item android:title="Marathi"/>
+    <item android:title="Malay"/>
+    <item android:title="Dutch"/>
+    <item android:title="Norwegian"/>
+    <item android:title="Poland"/>
+    <item android:title="Portuguese"/>
+    <item android:title="Romanian"/>
+    <item android:title="Russian"/>
+    <item android:title="Slovak"/>
+    <item android:title="Albanian"/>
+    <item android:title="Swedish"/>
+    <item android:title="Swahili"/>
+    <item android:title="Tamil"/>
+    <item android:title="Telugu"/>
+    <item android:title="Thai"/>
+    <item android:title="Tagalog"/>
+    <item android:title="Turkish"/>
+    <item android:title="Ukrainian"/>
+    <item android:title="Urdu"/>
+    <item android:title="Vietnamese"/>
+    <item android:title="Chinese"/>
+
+
+</menu>
