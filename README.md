@@ -26,3 +26,4 @@ skipping the process of installing a package, since it has already been installe
 Users can install a language package before they translate, this way when they translate, the process will take a shorter amount of time. 
 
 
+This app will soon be available on Google Play!
