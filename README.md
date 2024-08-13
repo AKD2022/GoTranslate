@@ -18,7 +18,8 @@ to allow faster app usage after a while, by speeding up the language selection p
 Then follow the page down, take a photo, select a photo, type text, or record your voice. Then once you're done, hit the translate button, and watch the magic happen!
 
 # Functionality
-How does this app work? For translation to occur, the app downloads a google language package, which may take a while on the first use of one language to another. After that, translation will happen instantly, skipping the process of installing a package, since it has already been installed. Another tool that users can utilize is the download package feature. 
+How does this app work? For translation to occur, the app downloads a google language package, which may take a while on the first use of one language to another. After that, translation will happen instantly, 
+skipping the process of installing a package, since it has already been installed. Another tool that users can utilize is the download package feature. 
 
 <img width="356" alt="Screenshot 2024-08-13 at 2 45 58 PM" src="https://github.com/user-attachments/assets/ac1526ea-8187-4382-99d1-94418f19fb25">
 
