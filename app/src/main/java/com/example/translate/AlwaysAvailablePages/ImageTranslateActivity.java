@@ -242,6 +242,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
                         imageUri = data.getData();
                         Log.d(TAG, "onActivityResult: imageUri " + imageUri);
                         imageView.setImageURI(imageUri);
+                        imageView.setBackground(null);
 
                     } else {
                         Toast.makeText(getApplicationContext(), "Cancelled....", Toast.LENGTH_SHORT).show();

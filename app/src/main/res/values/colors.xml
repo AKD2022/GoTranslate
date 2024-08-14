@@ -12,5 +12,6 @@
     <color name="button_icon">#FFFFFF</color>
     <color name="background">#E0E0E0</color>
     <color name="dialogBg">#FF2B4678</color>
+    <color name="primaryColor">#5A20E1</color>
 
 </resources>
