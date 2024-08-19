@@ -4,6 +4,5 @@
         android:color="@color/button_background"
         android:state_selected="true"/>
     <item
-        android:color="@color/button_icon"
         android:state_selected="false"/>
 </selector>

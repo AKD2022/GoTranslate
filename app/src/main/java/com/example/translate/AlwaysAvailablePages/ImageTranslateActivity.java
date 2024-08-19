@@ -7,11 +7,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,12 +33,14 @@ import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.translate.MainActivity;
+import com.example.translate.ProgressDialog;
 import com.example.translate.R;
 import com.example.translate.SharedViewModels.SharedViewModelForImageTranslateActivity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
@@ -65,8 +70,11 @@ public class ImageTranslateActivity extends AppCompatActivity {
     private String languageTranslateTo, languageTranslateFrom; // define what language the code is given (use this for translation)
     private MaterialButton selectTranslateFrom, selectTranslateTo;
     String translatedText;
-
-
+    private MaterialButton imageNav, textNav, voiceNav, downloadNav;
+    ProgressDialog progressDialogInstallation = new ProgressDialog();
+    ProgressDialog progressDialogTranslation = new ProgressDialog();
+    ProgressDialog progressDialogRecognition = new ProgressDialog();
+    
     /* Shared View Model */
     private SharedViewModelForImageTranslateActivity sharedViewModelForImageTranslateActivity;
 
@@ -88,7 +96,6 @@ public class ImageTranslateActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image_translate);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        backButton = findViewById(R.id.goBackButton);
         imageView = findViewById(R.id.imageView);
         takePicture = findViewById(R.id.takePicture);
         selectImage = findViewById(R.id.openPhotos);
@@ -96,26 +103,28 @@ public class ImageTranslateActivity extends AppCompatActivity {
         selectTranslateFrom = findViewById(R.id.selectTranslateFrom);
         selectTranslateTo = findViewById(R.id.selectTranslateTo);
 
-        backButton.setOnClickListener(view -> {
-            toHome();
-        });
 
         /* Navigation Bar */
 
-        ChipNavigationBar navigationBar = findViewById(R.id.nav);
-        navigationBar.setItemSelected(R.id.image, true);
+        imageNav = findViewById(R.id.image);
+        textNav = findViewById(R.id.text);
+        voiceNav = findViewById(R.id.audio);
+        downloadNav = findViewById(R.id.downloadLanguages);
 
-        navigationBar.setOnItemSelectedListener(new ChipNavigationBar.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int i) {
-                if (i == R.id.text) {
-                    toText();
-                } else if (i == R.id.audio) {
-                    toVoice();
-                } else if (i == R.id.downloadLanguages) {
-                    toDownload();
-                }
-            }
+        imageNav.setOnClickListener(v -> {
+            toImage();
+        });
+
+        textNav.setOnClickListener(v -> {
+            toText();
+        });
+
+        voiceNav.setOnClickListener(v -> {
+            toVoice();
+        });
+
+        downloadNav.setOnClickListener(v -> {
+            toDownload();
         });
 
 
@@ -590,17 +599,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
     }
 
     private void translate() {
-        PleaseWaitDialog progressDialog = new PleaseWaitDialog(this);
-        progressDialog.setEnterTransition(R.anim.fade_in);
-        progressDialog.setExitTransition(R.anim.fade_out);
-        progressDialog.setHasOptionsMenu(true);
-        progressDialog.setCancelable(true);
-        progressDialog.setProgressStyle(PleaseWaitDialog.ProgressStyle.LINEAR);
-        progressDialog.setTitle("Installing Translation Model");
-        progressDialog.setMessage("This is done to speed up the translation, next time you use this. Next time you translate, " +
-                "translation will happen in a few seconds, skipping this process");
-        progressDialog.show();
-
+        progressDialogInstallation.getInstallationDialog(this);
         TranslatorOptions options = new TranslatorOptions.Builder()
                 .setTargetLanguage(languageTranslateTo)
                 .setSourceLanguage(languageTranslateFrom)
@@ -609,32 +608,25 @@ public class ImageTranslateActivity extends AppCompatActivity {
 
         translator.downloadModelIfNeeded()
                 .addOnSuccessListener(unused -> {
-                    progressDialog.dismiss();
+                    progressDialogInstallation.dismissInstallationDialog();
                     translateWithModelAvailable(translator, recognizedText);
                 })
                 .addOnFailureListener(e -> {
-                    progressDialog.dismiss();
+                    progressDialogInstallation.dismissInstallationDialog();
                     Log.e(TAG, "Translation model download failed: " + e.getMessage());
                     new MaterialAlertDialogBuilder(ImageTranslateActivity.this)
-                            .setMessage("Translation Failed. There may be a problem with installing the translation model.")
+                            .setMessage("Translation Failed. Please check your internet connection or try again later.")
                             .setPositiveButton("OK", null)
                             .show();
                 });
     }
 
     private void translateWithModelAvailable(Translator translator, String sourceText) {
-        PleaseWaitDialog progressDialog = new PleaseWaitDialog(this);
-        progressDialog.setEnterTransition(R.anim.fade_in);
-        progressDialog.setExitTransition(R.anim.fade_out);
-        progressDialog.setHasOptionsMenu(true);
-        progressDialog.setCancelable(true);
-        progressDialog.setProgressStyle(PleaseWaitDialog.ProgressStyle.LINEAR);
-        progressDialog.setMessage("Translating Text...");
-        progressDialog.show();
-
+        progressDialogTranslation.getTranslationDialog(this);
         Task<String> result = translator.translate(sourceText)
                 .addOnSuccessListener(s -> {
-                    progressDialog.dismiss();
+                    progressDialogInstallation.dismissInstallationDialog();
+                    progressDialogTranslation.dismissTranslateDialog();
                     translatedText = s;
                     new MaterialAlertDialogBuilder(ImageTranslateActivity.this)
                             .setMessage(s)
@@ -647,22 +639,14 @@ public class ImageTranslateActivity extends AppCompatActivity {
                             .show();
                 })
                 .addOnFailureListener(e -> {
-                    progressDialog.dismiss();
+                    progressDialogInstallation.dismissTranslateDialog();
                     Log.e(TAG, "Translation failed: " + e.getMessage());
                     Toast.makeText(getApplicationContext(), "Translation failed. If the model is already installed, text cannot be translated.", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void startRecognitionAndTranslation() {
-        PleaseWaitDialog progressDialog = new PleaseWaitDialog(this);
-        progressDialog.setEnterTransition(R.anim.fade_in);
-        progressDialog.setExitTransition(R.anim.fade_out);
-        progressDialog.setHasOptionsMenu(true);
-        progressDialog.setCancelable(true);
-        progressDialog.setProgressStyle(PleaseWaitDialog.ProgressStyle.LINEAR);
-        progressDialog.setMessage("Recognizing Text...");
-        progressDialog.show();
-
+        progressDialogRecognition.getRecognizingDialog(this);
         try {
             InputImage inputImage = InputImage.fromFilePath(getApplicationContext(), imageUri);
 
@@ -671,19 +655,19 @@ public class ImageTranslateActivity extends AppCompatActivity {
                         recognizedText = text.getText();
 
                         if (recognizedText.isEmpty()) {
-                            recognizeWithOtherRecognizers(progressDialog);
+                            recognizeWithOtherRecognizers(progressDialogRecognition.getRecognizingDialog(this));
                         } else {
-                            progressDialog.dismiss();
+                            progressDialogRecognition.dismissRecognizingDialog();
                             translate();
                         }
                     })
                     .addOnFailureListener(e -> {
-                        progressDialog.dismiss();
+                        progressDialogRecognition.dismissRecognizingDialog();
                         Log.e(TAG, "Text recognition failed", e);
                         Toast.makeText(getApplicationContext(), "Could not get text from image", Toast.LENGTH_SHORT).show();
                     });
         } catch (Exception e) {
-            progressDialog.dismiss();
+            progressDialogRecognition.dismissRecognizingDialog();
             Log.e(TAG, "Failed to create InputImage", e);
             Toast.makeText(getApplicationContext(), "Could not get text from image", Toast.LENGTH_SHORT).show();
         }
@@ -750,7 +734,13 @@ public class ImageTranslateActivity extends AppCompatActivity {
 
     /* Navbar Buttons */
     void toHome() {
-        Intent i = new Intent(ImageTranslateActivity.this, MainActivity.class);
+        startActivity(new Intent(ImageTranslateActivity.this, MainActivity.class));
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    void toImage() {
+        startActivity(new Intent(ImageTranslateActivity.this, ImageTranslateActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }

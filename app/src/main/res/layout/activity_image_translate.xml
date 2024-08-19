@@ -7,163 +7,212 @@
     android:background="@color/background_color"
     tools:context=".AlwaysAvailablePages.ImageTranslateActivity">
 
-    <!-- Back Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/goBackButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/baseline_home_24"
-        android:contentDescription="Go back"
-        app:backgroundTint="@color/floatingActionBtn"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MaterialComponents.FloatingActionButton"/>
 
     <!-- Language Selection -->
     <LinearLayout
         android:id="@+id/languageSelection"
         android:layout_width="match_parent"
+        android:background="@drawable/language_selection"
+        android:layout_marginTop="75dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:elevation="10dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/goBackButton"
         android:orientation="horizontal"
-        android:padding="16dp"
         android:gravity="center">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/selectTranslateFrom"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="From"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:backgroundTint="@color/primaryColor"
-            app:icon="@drawable/baseline_arrow_drop_down_24"
-            android:iconTint="@color/white"
-            app:cornerRadius="8dp"
-            app:iconGravity="end"
-            android:padding="10dp"/>
+            android:text="Select Language"
+            android:background="@color/transparent" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_arrow_right_alt_24"
-            app:tint="@color/white"
-            android:padding="8dp"/>
+            android:src="@drawable/baseline_arrow_right_alt_24"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/selectTranslateTo"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="To"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:backgroundTint="@color/primaryColor"
-            app:icon="@drawable/baseline_arrow_drop_down_24"
-            android:iconTint="@color/white"
-            app:cornerRadius="8dp"
-            app:iconGravity="end"
-            android:padding="10dp"/>
+            android:text="Select Language"
+            android:background="@color/transparent" />
 
     </LinearLayout>
 
     <!-- Image Container -->
     <LinearLayout
         android:id="@+id/imageContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
         android:layout_below="@id/languageSelection"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:background="@drawable/image_background"
-            android:contentDescription="Selected image"
-            android:scaleType="centerInside"
-            android:src="@drawable/baseline_image_24"/>
-
-    </LinearLayout>
-
-    <!-- Button Container -->
-    <LinearLayout
-        android:id="@+id/buttonContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/imageContainer"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/takePicture"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Take Photo"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/button_background"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/outline_add_a_photo_24"
-            app:iconTint="@color/white"
-            app:iconPadding="8dp"
-            android:textAllCaps="false"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/openPhotos"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Select Photo"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/button_background"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/outline_photo_library_24"
-            app:iconTint="@color/white"
-            app:iconPadding="8dp"
-            android:textAllCaps="false"
-            android:layout_marginStart="8dp"/>
-
-    </LinearLayout>
-
-    <!-- Translate Button -->
-    <LinearLayout
-        android:id="@+id/translateBtnContainer"
         android:layout_width="wrap_content"
+        android:orientation="vertical"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/buttonContainer"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp">
+        android:layout_centerInParent="true">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/translate"
-            android:layout_width="200dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/baseline_image_24"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="1dp" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Translate"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/primaryColor"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/baseline_translate_24"
-            android:iconTint="@color/white"
-            app:iconPadding="8dp"
-            android:textAllCaps="false"/>
+            android:background="@drawable/language_selection">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/takePicture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/activityBackground"
+                android:layout_margin="25dp"
+                app:layout_constraintStart_toStartOf="parent"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                app:icon="@drawable/outline_add_a_photo_24"
+                app:iconPadding="0dp"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="25dp"
+                tools:layout_editor_absoluteY="0dp" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="1dp"
+                android:layout_height="50dp"
+                android:background="@color/white"
+                app:layout_constraintStart_toEndOf="@id/takePicture"
+                app:layout_constraintEnd_toStartOf="@id/openPhotos"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                tools:ignore="MissingConstraints" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/openPhotos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="25dp"
+                android:backgroundTint="@color/activityBackground"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                app:icon="@drawable/outline_photo_library_24"
+                app:iconPadding="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteY="0dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 
-    <!-- Bottom Navigation -->
-    <com.ismaeldivita.chipnavigation.ChipNavigationBar
-        android:id="@+id/nav"
+    <FrameLayout
+        android:layout_below="@id/imageContainer"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <!-- Translate Btn -->
+        <com.google.android.material.button.MaterialButton
+            android:elevation="10dp"
+            android:id="@+id/translate"
+            android:backgroundTint="@color/activityBackground"
+            app:backgroundTint="@color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:text="Translate"
+            app:icon="@drawable/baseline_translate_24" />
+
+    </FrameLayout>
+
+    <!-- custom NavBar -->
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:background="@color/activityBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/background_bar_shape"
-        android:padding="15dp"
-        app:cnb_menuResource="@menu/menu_bar"
-        app:cnb_iconSize="24dp"
-        app:cnb_unselectedColor="#777777"/>
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/image"
+            app:icon="@drawable/baseline_image_24"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_marginTop="30dp"
+            android:backgroundTint="@color/button_background"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/text"
+            android:background="@drawable/menu_icon"
+            app:icon="@drawable/baseline_text_snippet_24"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/audio"
+            android:background="@drawable/menu_icon"
+            app:icon="@drawable/outline_mic_24"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/downloadLanguages"
+            android:background="@drawable/menu_icon"
+            app:icon="@drawable/baseline_file_download_24"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:textAlignment="gravity"/>
+
+    </LinearLayout>
+
+
+
+
 
 </RelativeLayout>

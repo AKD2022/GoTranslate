@@ -2,7 +2,10 @@ package com.example.translate.AlwaysAvailablePages;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -16,6 +19,9 @@ import com.example.translate.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.common.model.RemoteModelManager;
+import com.google.mlkit.nl.translate.TranslateRemoteModel;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
@@ -29,11 +35,7 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
     private String translateToButton, translateFromButton; // translateTo, translateFrom define what language is chosen
     private String languageTranslateTo, languageTranslateFrom; // define what language the code is given (use this for translation)
     private MaterialButton selectTranslateFrom, selectTranslateTo, downloadSelectedLanguages;
-
-    private final int ID_IMAGE = 1;
-    private final int ID_TEXT = 2;
-    private final int ID_VOICE = 3;
-    private final int ID_DOWNLOAD = 4;
+    private MaterialButton imageNav, textNav, voiceNav, downloadNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,29 +45,33 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
         selectTranslateFrom = findViewById(R.id.selectTranslateFrom);
         selectTranslateTo = findViewById(R.id.selectTranslateTo);
         downloadSelectedLanguages = findViewById(R.id.downloadTranslationPackageBtn);
-        goBack = findViewById(R.id.goBackButton);
 
-        goBack.setOnClickListener(view -> {
-            toHome();
+
+        /* Navigation Bar */
+
+        imageNav = findViewById(R.id.image);
+        textNav = findViewById(R.id.text);
+        voiceNav = findViewById(R.id.audio);
+        downloadNav = findViewById(R.id.downloadLanguages);
+
+        imageNav.setOnClickListener(v -> {
+            toImage();
         });
 
-        /* Bottom Navigation View */
-        ChipNavigationBar navigationBar = findViewById(R.id.nav);
-        navigationBar.setItemSelected(R.id.downloadLanguages, true);
-
-        navigationBar.setOnItemSelectedListener(new ChipNavigationBar.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int i) {
-                if (i == R.id.image) {
-                    toImage();
-                } else if (i == R.id.audio) {
-                    toVoice();
-                } else if (i == R.id.text) {
-                    toText();
-                }
-            }
+        textNav.setOnClickListener(v -> {
+            toText();
         });
-        /* Bottom Navigation View */
+
+        voiceNav.setOnClickListener(v -> {
+            toVoice();
+        });
+
+        downloadNav.setOnClickListener(v -> {
+            toDownload();
+        });
+
+
+        /* End of Navigation Bar */
 
         selectTranslateTo.setOnClickListener(view -> {
             selectTranslateTo();
@@ -423,40 +429,71 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
         }
     }
 
-    public void installLanguagePackage () {
-        PleaseWaitDialog progressDialog = new PleaseWaitDialog(this);
-        progressDialog.setTitle("Installation \n");
-        progressDialog.setEnterTransition(R.anim.fade_in);
-        progressDialog.setExitTransition(R.anim.fade_out);
-        progressDialog.setHasOptionsMenu(true);
-        progressDialog.setCancelable(true);
-        progressDialog.setProgressStyle(PleaseWaitDialog.ProgressStyle.LINEAR);
-        progressDialog.setMessage("Please wait while the " + translateFromButton.toString() +
-                " to " + translateToButton.toString() + " language package is being installed");
-        progressDialog.show();
-
+    private void installLanguagePackage() {
+        // Setup translation options
         TranslatorOptions options = new TranslatorOptions.Builder()
                 .setTargetLanguage(languageTranslateTo)
                 .setSourceLanguage(languageTranslateFrom)
                 .build();
         Translator translator = Translation.getClient(options);
 
+        // Create the model manager
+        RemoteModelManager modelManager = RemoteModelManager.getInstance();
+        TranslateRemoteModel model = new TranslateRemoteModel.Builder(languageTranslateTo).build();
+
+        // Check if the translation model is already downloaded
+        modelManager.getDownloadedModels(TranslateRemoteModel.class)
+                .addOnSuccessListener(models -> {
+                    boolean isModelInstalled = false;
+                    for (TranslateRemoteModel downloadedModel : models) {
+                        if (downloadedModel.getLanguage().equals(languageTranslateTo)) {
+                            isModelInstalled = true;
+                            break;
+                        }
+                    }
+
+                    if (isModelInstalled) {
+                        // Model is already installed, so directly translate
+                        new MaterialAlertDialogBuilder(DownloadLanguageTranslatePackages.this)
+                                .setTitle("Package is already installed")
+                                .setPositiveButton("Ok", null)
+                                .show();
+
+                    } else {
+                        // Show progress dialog and download model
+                        PleaseWaitDialog progressDialog = new PleaseWaitDialog(this);
+                        progressDialog.setEnterTransition(R.anim.fade_in);
+                        progressDialog.setExitTransition(R.anim.fade_out);
+                        progressDialog.setHasOptionsMenu(true);
+                        progressDialog.setCancelable(true);
+                        progressDialog.setProgressStyle(PleaseWaitDialog.ProgressStyle.LINEAR);
+                        progressDialog.setTitle("Installing Translation Model");
+                        progressDialog.setMessage("Downloading the translation model. This may take a while. Once this is complete" +
+                                " the next time you use this language, translation will happen instantly");
+                        progressDialog.show();
+
+                        // Download the model
+                        downloadModel(translator, progressDialog);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to get downloaded models: " + e.getMessage());
+                    Toast.makeText(DownloadLanguageTranslatePackages.this, "Failed to check installed models.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void downloadModel(Translator translator, PleaseWaitDialog progressDialog) {
         translator.downloadModelIfNeeded()
                 .addOnSuccessListener(unused -> {
+                    // Check if the model is downloaded successfully
+                    // Dismiss progress dialog and proceed with translation
                     progressDialog.dismiss();
-                    new MaterialAlertDialogBuilder(this)
-                            .setTitle("Successful Installation")
-                            .setMessage(translateFromButton.toString() + " to " + translateToButton.toString() +
-                                    " translation model has been successfully installed. Translation will now" +
-                                    " occur faster")
-                            .setPositiveButton("Great, thanks!", null)
-                            .show();
                 })
                 .addOnFailureListener(e -> {
                     progressDialog.dismiss();
                     Log.e(TAG, "Translation model download failed: " + e.getMessage());
-                    new MaterialAlertDialogBuilder(this)
-                            .setMessage("Translation Failed. There may be a problem with installing the translation model.")
+                    new MaterialAlertDialogBuilder(DownloadLanguageTranslatePackages.this)
+                            .setMessage("Translation Failed. Please check your internet connection or try again later.")
                             .setPositiveButton("OK", null)
                             .show();
                 });
@@ -464,6 +501,12 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
 
     void toHome() {
         startActivity(new Intent(DownloadLanguageTranslatePackages.this, MainActivity.class));
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    void toImage() {
+        startActivity(new Intent(DownloadLanguageTranslatePackages.this, ImageTranslateActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }
@@ -480,8 +523,8 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
         finish();
     }
 
-    void toImage() {
-        startActivity(new Intent(DownloadLanguageTranslatePackages.this,  ImageTranslateActivity.class));
+    void toDownload() {
+        startActivity(new Intent(DownloadLanguageTranslatePackages.this,  DownloadLanguageTranslatePackages.class));
         overridePendingTransition(0, 0);
         finish();
     }

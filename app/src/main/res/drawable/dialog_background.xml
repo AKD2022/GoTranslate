@@ -4,7 +4,7 @@
     android:shape="rectangle">
 
     <corners android:radius="50dp"/>
-    <solid android:color="@color/dialogBg"/>
+    <solid android:color="@color/buttonColor"/>
     <size android:width="100dp"
         android:height="100dp"/>
 

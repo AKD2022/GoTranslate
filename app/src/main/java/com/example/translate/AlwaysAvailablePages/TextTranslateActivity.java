@@ -5,9 +5,14 @@ import static android.content.ContentValues.TAG;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -26,11 +32,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
-import com.ismaeldivita.chipnavigation.ChipNavigationBar;
+import com.google.mlkit.common.model.RemoteModelManager;
+import com.google.mlkit.nl.translate.TranslateRemoteModel;
 import com.tashila.pleasewait.PleaseWaitDialog;
+
+import java.util.Set;
 
 
 public class TextTranslateActivity extends AppCompatActivity {
@@ -42,6 +52,7 @@ public class TextTranslateActivity extends AppCompatActivity {
     private EditText typeTranslateFrom;
     private TextView translateToText;
     String translatedText, typedText;
+    private MaterialButton imageNav, textNav, voiceNav, downloadNav;
 
     private SharedViewModelForTextTranslateActivity sharedViewModel;
 
@@ -53,33 +64,34 @@ public class TextTranslateActivity extends AppCompatActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        backButton = findViewById(R.id.goBackButton);
         selectTranslateFrom = findViewById(R.id.selectTranslateFrom);
         selectTranslateTo = findViewById(R.id.selectTranslateTo);
         typeTranslateFrom = findViewById(R.id.typeTranslateFrom);
         translateToText = findViewById(R.id.translateToText);
-        translate = findViewById(R.id.translate);
+        //translate = findViewById(R.id.translate);
         copyBtn = findViewById(R.id.copyBtn);
 
-        backButton.setOnClickListener(view -> {
-            toHome();
+
+        /* Navigation Bar */
+        imageNav = findViewById(R.id.image);
+        textNav = findViewById(R.id.text);
+        voiceNav = findViewById(R.id.audio);
+        downloadNav = findViewById(R.id.downloadLanguages);
+
+        imageNav.setOnClickListener(v -> {
+            toImage();
         });
 
-        /* Bottom Navigation View */
-        ChipNavigationBar navigationBar = findViewById(R.id.nav);
-        navigationBar.setItemSelected(R.id.text, true);
+        textNav.setOnClickListener(v -> {
+            toText();
+        });
 
-        navigationBar.setOnItemSelectedListener(new ChipNavigationBar.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int i) {
-                if (i == R.id.image) {
-                    toImage();
-                } else if (i == R.id.audio) {
-                    toVoice();
-                } else if (i == R.id.downloadLanguages) {
-                    toDownload();
-                }
-            }
+        voiceNav.setOnClickListener(v -> {
+            toVoice();
+        });
+
+        downloadNav.setOnClickListener(v -> {
+            toDownload();
         });
 
         /* Bottom Navigation View */
@@ -122,6 +134,30 @@ public class TextTranslateActivity extends AppCompatActivity {
             copyBtn();
         });
 
+        typeTranslateFrom.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Not used
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Trigger translation while typing
+                if (!charSequence.toString().trim().isEmpty()) {
+                    translateWhileTyping(charSequence.toString());
+                } else {
+                    translateToText.setText(""); // Clear the output when input is empty
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // Not used
+            }
+        });
+
+
+        /*
         translate.setOnClickListener(view ->{
             if (translateToButton == null) {
                 Toast.makeText(this, "Please select language to translate to", Toast.LENGTH_SHORT).show();
@@ -137,7 +173,10 @@ public class TextTranslateActivity extends AppCompatActivity {
                 translate();
             }
         });
+        */
+
     }
+
 
     public void selectTranslateTo() {
         PopupMenu popupMenu = new PopupMenu(getApplicationContext(), selectTranslateTo);
@@ -464,67 +503,95 @@ public class TextTranslateActivity extends AppCompatActivity {
     }
 
 
-    private void translate() {
-        PleaseWaitDialog progressDialog = new PleaseWaitDialog(this);
-        progressDialog.setEnterTransition(R.anim.fade_in);
-        progressDialog.setExitTransition(R.anim.fade_out);
-        progressDialog.setHasOptionsMenu(true);
-        progressDialog.setCancelable(true);
-        progressDialog.setProgressStyle(PleaseWaitDialog.ProgressStyle.LINEAR);
-        progressDialog.setTitle("Installing Translation Model");
-        progressDialog.setMessage("This is done to speed up the translation, next time you use this. Next time you translate, " +
-                "translation will happen in a few seconds, skipping this process");
-        progressDialog.show();
 
-
+    private void translate(String textToTranslate) {
+        // Setup translation options
         TranslatorOptions options = new TranslatorOptions.Builder()
                 .setTargetLanguage(languageTranslateTo)
                 .setSourceLanguage(languageTranslateFrom)
                 .build();
         Translator translator = Translation.getClient(options);
 
+        RemoteModelManager modelManager = RemoteModelManager.getInstance();
+        TranslateRemoteModel model = new TranslateRemoteModel.Builder(languageTranslateTo).build();
+
+        // Check if the translation model is already downloaded
+        modelManager.getDownloadedModels(TranslateRemoteModel.class)
+                .addOnSuccessListener(models -> {
+                    boolean isModelInstalled = false;
+                    for (TranslateRemoteModel downloadedModel : models) {
+                        if (downloadedModel.getLanguage().equals(languageTranslateTo)) {
+                            isModelInstalled = true;
+                            break;
+                        }
+                    }
+
+                    if (isModelInstalled) {
+                        translateWithModelAvailable(translator, textToTranslate);
+                    } else {
+                        PleaseWaitDialog progressDialog = new PleaseWaitDialog(this);
+                        progressDialog.setEnterTransition(R.anim.fade_in);
+                        progressDialog.setExitTransition(R.anim.fade_out);
+                        progressDialog.setHasOptionsMenu(true);
+                        progressDialog.setCancelable(true);
+                        progressDialog.setProgressStyle(PleaseWaitDialog.ProgressStyle.LINEAR);
+                        progressDialog.setTitle("Installing Translation Model");
+                        progressDialog.setMessage("Downloading the translation model. This may take a while. Once this is complete" +
+                                " the next time you use this language, translation will happen instantly");
+                        progressDialog.show();
+
+                        downloadAndTranslate(translator, textToTranslate, progressDialog);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to get downloaded models: " + e.getMessage());
+                    Toast.makeText(TextTranslateActivity.this, "Failed to check installed models.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void downloadAndTranslate(Translator translator, String textToTranslate, PleaseWaitDialog progressDialog) {
         translator.downloadModelIfNeeded()
                 .addOnSuccessListener(unused -> {
+                    // Check if the model is downloaded successfully
+                    // Dismiss progress dialog and proceed with translation
                     progressDialog.dismiss();
-                    translateWithModelAvailable(translator, typedText);
+                    translateWithModelAvailable(translator, textToTranslate);
                 })
                 .addOnFailureListener(e -> {
                     progressDialog.dismiss();
                     Log.e(TAG, "Translation model download failed: " + e.getMessage());
                     new MaterialAlertDialogBuilder(TextTranslateActivity.this)
-                            .setMessage("Translation Failed. There may be a problem with installing the translation model.")
+                            .setMessage("Translation Failed. Please check your internet connection or try again later.")
                             .setPositiveButton("OK", null)
                             .show();
                 });
     }
 
     private void translateWithModelAvailable(Translator translator, String sourceText) {
-        PleaseWaitDialog progressDialog = new PleaseWaitDialog(this);
-        progressDialog.setEnterTransition(R.anim.fade_in);
-        progressDialog.setExitTransition(R.anim.fade_out);
-        progressDialog.setHasOptionsMenu(true);
-        progressDialog.setCancelable(true);
-        progressDialog.setProgressStyle(PleaseWaitDialog.ProgressStyle.LINEAR);
-        progressDialog.setMessage("Translating Text");
-        progressDialog.show();
-
-
-        Task<String> result = translator.translate(sourceText)
+        translator.translate(sourceText)
                 .addOnSuccessListener(s -> {
-                    progressDialog.dismiss();
                     translatedText = s;
                     replaceTextViewWithTranslatedText();
                 })
                 .addOnFailureListener(e -> {
-                    progressDialog.dismiss();
                     Log.e(TAG, "Translation failed: " + e.getMessage());
                     Toast.makeText(getApplicationContext(), "Translation failed. If the model is already installed, text cannot be translated.", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private String getTextFromEditText() {
-        typedText = typeTranslateFrom.getText().toString();
-        return typedText;
+
+    private void translateWhileTyping(String textToTranslate) {
+        if (translateToButton == null) {
+            Toast.makeText(this, "Please select language to translate to", Toast.LENGTH_SHORT).show();
+        } else if (translateFromButton == null) {
+            Toast.makeText(this, "Please select language to translate from", Toast.LENGTH_SHORT).show();
+        } else if (translateToButton.equals(translateFromButton)) {
+            Toast.makeText(this, "You cannot select the same language twice", Toast.LENGTH_SHORT).show();
+        } else {
+            getLanguageTo();
+            getLanguageFrom();
+            translate(textToTranslate);
+        }
     }
 
     private void replaceTextViewWithTranslatedText() {
@@ -547,6 +614,12 @@ public class TextTranslateActivity extends AppCompatActivity {
 
     void toImage() {
         startActivity(new Intent(TextTranslateActivity.this, ImageTranslateActivity.class));
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    void toText() {
+        startActivity(new Intent(TextTranslateActivity.this, TextTranslateActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }
