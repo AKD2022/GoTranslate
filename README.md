@@ -11,7 +11,7 @@ To Begin, select what you would like to translate, whether its text from an imag
 Then, once you select what you would like to translate, select what you would language you are translating from and to. These values will be saved even when the app is closed, 
 to allow faster app usage after a while, by speeding up the language selection process. However, all of these values can be changed, and you can switch them whenever you please. 
 
-<img width="371" alt="Screenshot 2024-08-21 at 2 19 45 PM" src="https://github.com/user-attachments/assets/847b7bc1-0c94-4110-8d88-f8ae300e5d95"><img width="371" alt="Screenshot 2024-08-21 at 2 19 54 PM" src="https://github.com/user-attachments/assets/4a6ea62f-8823-4100-a6db-af4caef7107c"><img width="371" alt="Screenshot 2024-08-21 at 2 20 10 PM" src="https://github.com/user-attachments/assets/146a5621-bde7-4254-a468-48e7ed9dd1c1">
+<img width="371" alt="Screenshot 2024-08-21 at 2 21 16 PM" src="https://github.com/user-attachments/assets/57df3839-971f-4c5f-bcb7-9f64ee11e78a"><img width="371" alt="Screenshot 2024-08-21 at 2 19 54 PM" src="https://github.com/user-attachments/assets/4a6ea62f-8823-4100-a6db-af4caef7107c"><img width="371" alt="Screenshot 2024-08-21 at 2 20 10 PM" src="https://github.com/user-attachments/assets/146a5621-bde7-4254-a468-48e7ed9dd1c1">
 
 
 These are what the pages look like. All of the translation happens automatically, rather than the image translate page. This is the only page where you need to manually hit the translate button. In all other translate pages, translation will happen instantly, without a translate button
