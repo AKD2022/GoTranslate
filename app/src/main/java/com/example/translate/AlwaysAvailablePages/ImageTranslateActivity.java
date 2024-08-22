@@ -7,14 +7,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,7 +36,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.common.model.RemoteModelManager;
+import com.google.mlkit.nl.translate.TranslateRemoteModel;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
@@ -52,7 +49,6 @@ import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions;
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions;
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
-import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 import com.tashila.pleasewait.PleaseWaitDialog;
 
 import java.io.File;
@@ -74,6 +70,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
     ProgressDialog progressDialogInstallation = new ProgressDialog();
     ProgressDialog progressDialogTranslation = new ProgressDialog();
     ProgressDialog progressDialogRecognition = new ProgressDialog();
+
     
     /* Shared View Model */
     private SharedViewModelForImageTranslateActivity sharedViewModelForImageTranslateActivity;
@@ -102,6 +99,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
         translate = findViewById(R.id.translate);
         selectTranslateFrom = findViewById(R.id.selectTranslateFrom);
         selectTranslateTo = findViewById(R.id.selectTranslateTo);
+
 
 
         /* Navigation Bar */
@@ -153,8 +151,6 @@ public class ImageTranslateActivity extends AppCompatActivity {
             } else if (translateToButton.equals(translateFromButton)) {
                 Toast.makeText(this, "You cannot select the same language twice", Toast.LENGTH_SHORT).show();
             } else {
-                getLanguageTo();
-                getLanguageFrom();
                 startRecognitionAndTranslation();
             }
         });
@@ -253,6 +249,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
                         imageView.setImageURI(imageUri);
                         imageView.setBackground(null);
 
+
                     } else {
                         Toast.makeText(getApplicationContext(), "Cancelled....", Toast.LENGTH_SHORT).show();
                     }
@@ -283,6 +280,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
             String selectedLanguageTranslateTo = menuItem.getTitle().toString();
             selectTranslateTo.setText(selectedLanguageTranslateTo);
             sharedViewModelForImageTranslateActivity.setSelectedTranslateToLanguage(selectedLanguageTranslateTo);
+            getLanguageTo();
             Toast.makeText(getApplicationContext(), "You Clicked " + selectedLanguageTranslateTo, Toast.LENGTH_SHORT).show();
             return true;
         });
@@ -299,6 +297,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
             String selectedLanguageTranslateFrom = menuItem.getTitle().toString();
             selectTranslateFrom.setText(selectedLanguageTranslateFrom);
             sharedViewModelForImageTranslateActivity.setSelectedTranslateFromLanguage(selectedLanguageTranslateFrom);
+            getLanguageFrom();
             Toast.makeText(getApplicationContext(), "You Clicked " + selectedLanguageTranslateFrom, Toast.LENGTH_SHORT).show();
             return true;
         });
@@ -308,145 +307,145 @@ public class ImageTranslateActivity extends AppCompatActivity {
 
     public void getLanguageTo() {
         switch (translateToButton) {
-            case "Arabic":
+            case "العربية (Arabic)":
                 languageTranslateTo = "ar";
                 break;
-            case "Bulgarian":
+            case "Български (Bulgarian)":
                 languageTranslateTo = "bg";
                 break;
-            case "Bengali":
+            case "বাংলা (Bengali)":
                 languageTranslateTo = "bn";
                 break;
-            case "Catalan":
+            case "Català (Catalan)":
                 languageTranslateTo = "ca";
                 break;
-            case "Czech":
+            case "Čeština (Czech)":
                 languageTranslateTo = "cs";
                 break;
-            case "Welsh":
+            case "Cymraeg (Welsh)":
                 languageTranslateTo = "cy";
                 break;
-            case "Danish":
+            case "Dansk (Danish)":
                 languageTranslateTo = "da";
                 break;
-            case "German":
+            case "Deutsch (German)":
                 languageTranslateTo = "de";
                 break;
-            case "Greek":
+            case "Ελληνικά (Greek)":
                 languageTranslateTo = "el";
                 break;
-            case "English":
+            case "English (English)":
                 languageTranslateTo = "en";
                 break;
-            case "Spanish":
+            case "Español (Spanish)":
                 languageTranslateTo = "es";
                 break;
-            case "Estonian":
+            case "Eesti (Estonian)":
                 languageTranslateTo = "et";
                 break;
-            case "Finnish":
+            case "Suomi (Finnish)":
                 languageTranslateTo = "fi";
                 break;
-            case "French":
+            case "Français (French)":
                 languageTranslateTo = "fr";
                 break;
-            case "Gujarati":
+            case "ગુજરાતી (Gujarati)":
                 languageTranslateTo = "gu";
                 break;
-            case "Hebrew":
+            case "עברית (Hebrew)":
                 languageTranslateTo = "he";
                 break;
-            case "Hindi":
+            case "हिन्दी (Hindi)":
                 languageTranslateTo = "hi";
                 break;
-            case "Croatian":
+            case "Hrvatski (Croatian)":
                 languageTranslateTo = "hr";
                 break;
-            case "Hungarian":
+            case "Magyar (Hungarian)":
                 languageTranslateTo = "hu";
                 break;
-            case "Indonesian":
+            case "Bahasa Indonesia (Indonesian)":
                 languageTranslateTo = "id";
                 break;
-            case "Icelandic":
+            case "Íslenska (Icelandic)":
                 languageTranslateTo = "is";
                 break;
-            case "Italian":
+            case "Italiano (Italian)":
                 languageTranslateTo = "it";
                 break;
-            case "Japanese":
+            case "日本語 (Japanese)":
                 languageTranslateTo = "ja";
                 break;
-            case "Kannada":
+            case "ಕನ್ನಡ (Kannada)":
                 languageTranslateTo = "kn";
                 break;
-            case "Korean":
+            case "한국어 (Korean)":
                 languageTranslateTo = "ko";
                 break;
-            case "Lithuanian":
+            case "Lietuvių (Lithuanian)":
                 languageTranslateTo = "lt";
                 break;
-            case "Marathi":
+            case "मराठी (Marathi)":
                 languageTranslateTo = "mr";
                 break;
-            case "Malay":
+            case "Bahasa Melayu (Malay)":
                 languageTranslateTo = "ms";
                 break;
-            case "Dutch":
+            case "Nederlands (Dutch)":
                 languageTranslateTo = "nl";
                 break;
-            case "Norwegian":
+            case "Norsk (Norwegian)":
                 languageTranslateTo = "no";
                 break;
-            case "Poland":
+            case "Polski (Polish)":
                 languageTranslateTo = "pl";
                 break;
-            case "Portuguese":
+            case "Português (Portuguese)":
                 languageTranslateTo = "pt";
                 break;
-            case "Romanian":
+            case "Română (Romanian)":
                 languageTranslateTo = "ro";
                 break;
-            case "Russian":
+            case "Русский (Russian)":
                 languageTranslateTo = "ru";
                 break;
-            case "Slovak":
+            case "Slovenčina (Slovak)":
                 languageTranslateTo = "sk";
                 break;
-            case "Albanian":
+            case "Shqip (Albanian)":
                 languageTranslateTo = "sq";
                 break;
-            case "Swedish":
+            case "Svenska (Swedish)":
                 languageTranslateTo = "sv";
                 break;
-            case "Swahili":
+            case "Kiswahili (Swahili)":
                 languageTranslateTo = "sw";
                 break;
-            case "Tamil":
+            case "தமிழ் (Tamil)":
                 languageTranslateTo = "ta";
                 break;
-            case "Telugu":
+            case "తెలుగు (Telugu)":
                 languageTranslateTo = "te";
                 break;
-            case "Thai":
+            case "ไทย (Thai)":
                 languageTranslateTo = "th";
                 break;
-            case "Tagalog":
+            case "Tagalog (Tagalog)":
                 languageTranslateTo = "tl";
                 break;
-            case "Turkish":
+            case "Türkçe (Turkish)":
                 languageTranslateTo = "tr";
                 break;
-            case "Ukrainian":
+            case "Українська (Ukrainian)":
                 languageTranslateTo = "uk";
                 break;
-            case "Urdu":
+            case "اردو (Urdu)":
                 languageTranslateTo = "ur";
                 break;
-            case "Vietnamese":
+            case "Tiếng Việt (Vietnamese)":
                 languageTranslateTo = "vi";
                 break;
-            case "Chinese":
+            case "中文 (Chinese)":
                 languageTranslateTo = "zh";
                 break;
         }
@@ -454,165 +453,192 @@ public class ImageTranslateActivity extends AppCompatActivity {
 
     public void getLanguageFrom() {
         switch (translateFromButton) {
-            case "Arabic":
+            case "العربية (Arabic)":
                 languageTranslateFrom = "ar";
                 break;
-            case "Bulgarian":
+            case "Български (Bulgarian)":
                 languageTranslateFrom = "bg";
                 break;
-            case "Bengali":
+            case "বাংলা (Bengali)":
                 languageTranslateFrom = "bn";
                 break;
-            case "Catalan":
+            case "Català (Catalan)":
                 languageTranslateFrom = "ca";
                 break;
-            case "Czech":
+            case "Čeština (Czech)":
                 languageTranslateFrom = "cs";
                 break;
-            case "Welsh":
+            case "Cymraeg (Welsh)":
                 languageTranslateFrom = "cy";
                 break;
-            case "Danish":
+            case "Dansk (Danish)":
                 languageTranslateFrom = "da";
                 break;
-            case "German":
+            case "Deutsch (German)":
                 languageTranslateFrom = "de";
                 break;
-            case "Greek":
+            case "Ελληνικά (Greek)":
                 languageTranslateFrom = "el";
                 break;
-            case "English":
+            case "English (English)":
                 languageTranslateFrom = "en";
                 break;
-            case "Spanish":
+            case "Español (Spanish)":
                 languageTranslateFrom = "es";
                 break;
-            case "Estonian":
+            case "Eesti (Estonian)":
                 languageTranslateFrom = "et";
                 break;
-            case "Finnish":
+            case "Suomi (Finnish)":
                 languageTranslateFrom = "fi";
                 break;
-            case "French":
+            case "Français (French)":
                 languageTranslateFrom = "fr";
                 break;
-            case "Gujarati":
+            case "ગુજરાતી (Gujarati)":
                 languageTranslateFrom = "gu";
                 break;
-            case "Hebrew":
+            case "עברית (Hebrew)":
                 languageTranslateFrom = "he";
                 break;
-            case "Hindi":
+            case "हिन्दी (Hindi)":
                 languageTranslateFrom = "hi";
                 break;
-            case "Croatian":
+            case "Hrvatski (Croatian)":
                 languageTranslateFrom = "hr";
                 break;
-            case "Hungarian":
+            case "Magyar (Hungarian)":
                 languageTranslateFrom = "hu";
                 break;
-            case "Indonesian":
+            case "Bahasa Indonesia (Indonesian)":
                 languageTranslateFrom = "id";
                 break;
-            case "Icelandic":
+            case "Íslenska (Icelandic)":
                 languageTranslateFrom = "is";
                 break;
-            case "Italian":
+            case "Italiano (Italian)":
                 languageTranslateFrom = "it";
                 break;
-            case "Japanese":
+            case "日本語 (Japanese)":
                 languageTranslateFrom = "ja";
                 break;
-            case "Kannada":
+            case "ಕನ್ನಡ (Kannada)":
                 languageTranslateFrom = "kn";
                 break;
-            case "Korean":
+            case "한국어 (Korean)":
                 languageTranslateFrom = "ko";
                 break;
-            case "Lithuanian":
+            case "Lietuvių (Lithuanian)":
                 languageTranslateFrom = "lt";
                 break;
-            case "Marathi":
+            case "मराठी (Marathi)":
                 languageTranslateFrom = "mr";
                 break;
-            case "Malay":
+            case "Bahasa Melayu (Malay)":
                 languageTranslateFrom = "ms";
                 break;
-            case "Dutch":
+            case "Nederlands (Dutch)":
                 languageTranslateFrom = "nl";
                 break;
-            case "Norwegian":
+            case "Norsk (Norwegian)":
                 languageTranslateFrom = "no";
                 break;
-            case "Poland":
+            case "Polski (Polish)":
                 languageTranslateFrom = "pl";
                 break;
-            case "Portuguese":
+            case "Português (Portuguese)":
                 languageTranslateFrom = "pt";
                 break;
-            case "Romanian":
+            case "Română (Romanian)":
                 languageTranslateFrom = "ro";
                 break;
-            case "Russian":
+            case "Русский (Russian)":
                 languageTranslateFrom = "ru";
                 break;
-            case "Slovak":
+            case "Slovenčina (Slovak)":
                 languageTranslateFrom = "sk";
                 break;
-            case "Albanian":
+            case "Shqip (Albanian)":
                 languageTranslateFrom = "sq";
                 break;
-            case "Swedish":
+            case "Svenska (Swedish)":
                 languageTranslateFrom = "sv";
                 break;
-            case "Swahili":
+            case "Kiswahili (Swahili)":
                 languageTranslateFrom = "sw";
                 break;
-            case "Tamil":
+            case "தமிழ் (Tamil)":
                 languageTranslateFrom = "ta";
                 break;
-            case "Telugu":
+            case "తెలుగు (Telugu)":
                 languageTranslateFrom = "te";
                 break;
-            case "Thai":
+            case "ไทย (Thai)":
                 languageTranslateFrom = "th";
                 break;
-            case "Tagalog":
+            case "Tagalog (Tagalog)":
                 languageTranslateFrom = "tl";
                 break;
-            case "Turkish":
+            case "Türkçe (Turkish)":
                 languageTranslateFrom = "tr";
                 break;
-            case "Ukrainian":
+            case "Українська (Ukrainian)":
                 languageTranslateFrom = "uk";
                 break;
-            case "Urdu":
+            case "اردو (Urdu)":
                 languageTranslateFrom = "ur";
                 break;
-            case "Vietnamese":
+            case "Tiếng Việt (Vietnamese)":
                 languageTranslateFrom = "vi";
                 break;
-            case "Chinese":
+            case "中文 (Chinese)":
                 languageTranslateFrom = "zh";
                 break;
         }
     }
 
+
     private void translate() {
-        progressDialogInstallation.getInstallationDialog(this);
         TranslatorOptions options = new TranslatorOptions.Builder()
                 .setTargetLanguage(languageTranslateTo)
                 .setSourceLanguage(languageTranslateFrom)
                 .build();
         Translator translator = Translation.getClient(options);
 
-        translator.downloadModelIfNeeded()
-                .addOnSuccessListener(unused -> {
-                    progressDialogInstallation.dismissInstallationDialog();
-                    translateWithModelAvailable(translator, recognizedText);
+        RemoteModelManager modelManager = RemoteModelManager.getInstance();
+        TranslateRemoteModel model = new TranslateRemoteModel.Builder(languageTranslateTo).build();
+
+        modelManager.getDownloadedModels(TranslateRemoteModel.class)
+                .addOnSuccessListener(models -> {
+                    boolean isModelInstalled = false;
+                    for (TranslateRemoteModel downloadedModel : models) {
+                        if (downloadedModel.getLanguage().equals(languageTranslateTo)) {
+                            isModelInstalled = true;
+                            break;
+                        }
+                    }
+
+                    if (isModelInstalled) {
+                        translateWithModelAvailable(translator, recognizedText);
+                    } else {
+                        PleaseWaitDialog progressDialog = progressDialogInstallation.getInstallationDialog(this);
+                        downloadAndTranslate(translator, recognizedText, progressDialog);
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    progressDialogInstallation.dismissInstallationDialog();
+                    Log.e(TAG, "Failed to get downloaded models: " + e.getMessage());
+                    Toast.makeText(ImageTranslateActivity.this, "Failed to check installed models.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void downloadAndTranslate(Translator translator, String textToTranslate, PleaseWaitDialog progressDialog) {
+        translator.downloadModelIfNeeded()
+                .addOnSuccessListener(unused -> {
+                    progressDialog.dismiss();
+                    translateWithModelAvailable(translator, textToTranslate);
+                })
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
                     Log.e(TAG, "Translation model download failed: " + e.getMessage());
                     new MaterialAlertDialogBuilder(ImageTranslateActivity.this)
                             .setMessage("Translation Failed. Please check your internet connection or try again later.")

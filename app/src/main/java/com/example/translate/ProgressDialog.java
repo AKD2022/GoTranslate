@@ -27,8 +27,9 @@ public class ProgressDialog {
         return installationDialog;
     }
 
-    public void dismissInstallationDialog() {
+    public PleaseWaitDialog dismissInstallationDialog() {
         installationDialog.dismiss();
+        return null;
     }
 
     // Translation Dialog
@@ -44,8 +45,9 @@ public class ProgressDialog {
         return translationDialog;
     }
 
-    public void dismissTranslateDialog() {
+    public PleaseWaitDialog dismissTranslateDialog() {
         translationDialog.dismiss();
+        return null;
     }
 
     public @NonNull PleaseWaitDialog getRecognizingDialog(Context context) {
@@ -60,7 +62,8 @@ public class ProgressDialog {
         return recognitionDialog;
     }
 
-    public void dismissRecognizingDialog() {
+    public PleaseWaitDialog dismissRecognizingDialog() {
         recognitionDialog.dismiss();
+        return null;
     }
 }

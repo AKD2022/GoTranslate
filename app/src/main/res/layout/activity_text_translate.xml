@@ -4,6 +4,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scrollbars="vertical"
     android:background="@color/background_color"
     tools:context=".AlwaysAvailablePages.TextTranslateActivity">
 
@@ -55,6 +56,7 @@
             android:id="@+id/typeTranslateFrom"
             android:layout_width="375dp"
             android:layout_height="200dp"
+            android:scrollbars="vertical"
             android:textColor="@color/black"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/text_box_background"
@@ -79,6 +81,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/background"
                 android:gravity="top"
+                android:scrollbars="vertical"
                 android:textColor="@color/black"
                 android:hint="Translated Text"
                 android:padding="20dp"
