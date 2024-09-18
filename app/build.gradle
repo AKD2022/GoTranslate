@@ -69,8 +69,7 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.0"
     implementation libs.activity
-
-
+    implementation libs.animation.graphics.android
 
 
     testImplementation 'junit:junit:4.13.2'

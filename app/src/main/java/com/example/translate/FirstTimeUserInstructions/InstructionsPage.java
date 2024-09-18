@@ -7,12 +7,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
-import com.example.translate.MainActivity;
+import com.example.translate.AlwaysAvailablePages.ImageTranslateActivity;
 import com.example.translate.R;
 
 public class InstructionsPage extends AppCompatActivity {
@@ -62,7 +61,7 @@ public class InstructionsPage extends AppCompatActivity {
                 if (getItem(0) < 4) {
                     mSlideViewPager.setCurrentItem(getItem(1), true);
                 } else {
-                    Intent i = new Intent(InstructionsPage.this, MainActivity.class);
+                    Intent i = new Intent(InstructionsPage.this, ImageTranslateActivity.class);
                     startActivity(i);
                     finish();
                 }
@@ -72,7 +71,7 @@ public class InstructionsPage extends AppCompatActivity {
         skipbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(InstructionsPage.this, MainActivity.class);
+                Intent i = new Intent(InstructionsPage.this, ImageTranslateActivity.class);
                 startActivity(i);
                 finish();
             }

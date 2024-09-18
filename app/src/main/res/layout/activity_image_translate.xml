@@ -76,12 +76,13 @@
             android:background="@drawable/language_selection">
 
             <com.google.android.material.button.MaterialButton
+                android:gravity="center"
+                app:iconGravity="start"
                 android:id="@+id/takePicture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/activityBackground"
                 android:layout_margin="25dp"
-                app:layout_constraintStart_toStartOf="parent"
                 android:minWidth="48dp"
                 android:minHeight="48dp"
                 app:icon="@drawable/outline_add_a_photo_24"
@@ -139,19 +140,21 @@
     </FrameLayout>
 
     <!-- custom NavBar -->
-
     <LinearLayout
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
+        android:padding="10dp"
         android:background="@color/activityBackground"
         android:layout_width="match_parent"
+        android:layout_gravity="bottom"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/image"
-            app:icon="@drawable/baseline_image_24"
+            app:icon="@drawable/baseline_document_scanner_24"
+            android:backgroundTint="@color/button_background"
             android:gravity="center"
             android:padding="0dp"
             app:iconGravity="textStart"
@@ -160,9 +163,8 @@
             android:minHeight="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:layout_marginTop="30dp"
-            android:backgroundTint="@color/button_background"
             android:textAlignment="gravity"/>
 
         <com.google.android.material.button.MaterialButton
@@ -177,7 +179,7 @@
             android:minHeight="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:textAlignment="gravity"/>
 
         <com.google.android.material.button.MaterialButton
@@ -192,7 +194,22 @@
             android:minHeight="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/conversation"
+            android:background="@drawable/menu_icon"
+            app:icon="@drawable/conversation"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:textAlignment="gravity"/>
 
         <com.google.android.material.button.MaterialButton
@@ -207,7 +224,7 @@
             android:minHeight="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:textAlignment="gravity"/>
 
     </LinearLayout>

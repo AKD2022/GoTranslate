@@ -3,35 +3,35 @@ package com.example.translate.AlwaysAvailablePages;
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
+import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.translate.ProgressDialog;
 import com.example.translate.R;
-import com.example.translate.SharedViewModels.SharedViewModelForVoiceTranslateActivity;
+import com.example.translate.SharedViewModels.SharedViewModelForConversationActivity;
 import com.google.android.gms.tasks.Task;
-
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.mlkit.common.model.RemoteModelManager;
 import com.google.mlkit.nl.translate.TranslateRemoteModel;
 import com.google.mlkit.nl.translate.Translation;
@@ -44,47 +44,42 @@ import java.util.Locale;
 import java.util.Objects;
 
 
-public class VoiceTranslateActivity extends AppCompatActivity {
 
-    FloatingActionButton backButton;
-    Locale selectedLocale;
-    private MaterialButton translate;
-    private MaterialButton selectTranslateFrom, selectTranslateTo, switchLanguage;
-    MaterialButton micButton, playAudio;
+public class ConversationActivity extends AppCompatActivity {
+
+    private Locale selectedLocaleFrom, selectedLocaleTo;
+    private MaterialButton imageNav, textNav, voiceNav, downloadNav, conversationNav;
+    private MaterialButton selectTranslateTo, selectTranslateFrom;
     private String translateToButton, translateFromButton; // translateTo, translateFrom define what language is chosen
     private String languageTranslateTo, languageTranslateFrom; // defines the language code (use for translation)
-    private String recordedText, translatedText;
-    TextView recordedTextView, translatedTextView;
-    TextToSpeech textToSpeech;
-    private int speechProgress = 0;
+    private TextView person1TextView, person2TextView;
+    private MaterialButton micPerson1, micPerson2;
+    private String recordedText1, recordedText2, translatedText1, translatedText2, recordedText;
+    private SharedViewModelForConversationActivity sharedViewModel;
     private static final int REQUEST_CODE_SPEECH_INPUT = 1;
-    private boolean isSpeaking = false;
-
-    private SharedViewModelForVoiceTranslateActivity sharedViewModel;
+    int track = 0;
+    TextToSpeech textToSpeech;
+    private MaterialTextView speakingDialog;
 
     ProgressDialog progressDialogInstallation = new ProgressDialog();
     ProgressDialog progressDialogTranslation = new ProgressDialog();
     ProgressDialog progressDialogRecognition = new ProgressDialog();
 
-    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_voice_translate);
-
+        setContentView(R.layout.activity_conversation);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         selectTranslateFrom = findViewById(R.id.selectTranslateFrom);
         selectTranslateTo = findViewById(R.id.selectTranslateTo);
-        micButton = findViewById(R.id.micButton);
-        recordedTextView = findViewById(R.id.recordedTextView);
-        translatedTextView = findViewById(R.id.translatedTextView);
-        playAudio = findViewById(R.id.playAudio);
+        person1TextView = findViewById(R.id.person1Text);
+        person2TextView = findViewById(R.id.person2Text);
+        micPerson1 = findViewById(R.id.micPerson1);
+        micPerson2 = findViewById(R.id.micPerson2);
+        speakingDialog = findViewById(R.id.speakingDialog);
 
-
-        /* Bottom Navigation View */
-        MaterialButton imageNav, textNav, voiceNav, downloadNav, conversationNav;
-
+        /* Navbar */
         imageNav = findViewById(R.id.image);
         textNav = findViewById(R.id.text);
         voiceNav = findViewById(R.id.audio);
@@ -110,14 +105,14 @@ public class VoiceTranslateActivity extends AppCompatActivity {
         conversationNav.setOnClickListener(v -> {
             toConversation();
         });
-        /* Bottom Navigation View */
 
-        sharedViewModel = new ViewModelProvider(this).get(SharedViewModelForVoiceTranslateActivity.class);
-
+        /* Shared View Model */
+        sharedViewModel = new ViewModelProvider(this).get(SharedViewModelForConversationActivity.class);
         sharedViewModel.getSelectedTranslateToLanguage().observe(this, selectedLanguageTranslateTo -> {
             if (selectedLanguageTranslateTo != null) {
                 selectTranslateTo.setText(selectedLanguageTranslateTo);
                 translateToButton = selectedLanguageTranslateTo; // update translateToButton
+                getLanguageTo();
             }
 
             assert selectedLanguageTranslateTo != null;
@@ -125,17 +120,29 @@ public class VoiceTranslateActivity extends AppCompatActivity {
                 selectTranslateTo.setText("Select Language");
             }
         });
-
         sharedViewModel.getSelectedTranslateFromLanguage().observe(this, selectedLanguageTranslateFrom -> {
             if (selectedLanguageTranslateFrom != null) {
                 selectTranslateFrom.setText(selectedLanguageTranslateFrom);
-                translateFromButton = selectedLanguageTranslateFrom; // update translateFromButton
+                translateFromButton = selectedLanguageTranslateFrom;
+                getLanguageFrom();
             }
 
             assert selectedLanguageTranslateFrom != null;
             if (selectedLanguageTranslateFrom.isBlank()) {
                 selectTranslateTo.setText("Select Language");
             }
+        });
+
+        micPerson1.setOnClickListener(v -> {
+            track = 1;
+            checkRecordingPermissionAndRecord();
+            textToSpeechPerson2();
+        });
+
+        micPerson2.setOnClickListener(v -> {
+            track = 2;
+            checkRecordingPermissionAndRecord();
+            textToSpeechPerson1();
         });
 
         selectTranslateTo.setOnClickListener(view -> {
@@ -145,112 +152,7 @@ public class VoiceTranslateActivity extends AppCompatActivity {
         selectTranslateFrom.setOnClickListener(view -> {
             selectTranslateFrom();
         });
-
-        micButton.setOnClickListener(view -> {
-            getLanguageFrom();
-            getLanguageTo();
-            checkRecordingPermissionAndRecord();
-        });
-
-
-
-
-        playAudio.setOnClickListener(view -> {
-            if (translateToButton == null) {
-                Toast.makeText(this, "Please select language to translate from", Toast.LENGTH_SHORT).show();
-            } else if (translateFromButton == null ) {
-                Toast.makeText(this, "Please select language to translate to", Toast.LENGTH_SHORT).show();
-            } else if (translateToButton.equals(translateFromButton)) {
-                Toast.makeText(this, "You cannot select the same language twice", Toast.LENGTH_SHORT).show();
-            } else if (recordedText == null || recordedText.isEmpty()) {
-                Toast.makeText(this, "Please record voice first", Toast.LENGTH_SHORT).show();
-            } else if (translatedText == null || translatedText.isBlank()) {
-                Toast.makeText(this, "Please Translate Text first", Toast.LENGTH_SHORT).show();
-            }
-
-            if (translatedText != null && !translatedText.isEmpty() || translateToButton != null && !translateToButton.isEmpty() || translateFromButton != null && !translateFromButton.isEmpty()) {
-
-                if (isSpeaking) {
-                    textToSpeech.stop();
-                    playAudio.setIcon(AppCompatResources.getDrawable(getApplicationContext(), R.drawable.outline_play_circle_24));
-                    isSpeaking = false;
-                } else {
-                    textToSpeech.speak(translatedText.substring(speechProgress), TextToSpeech.QUEUE_FLUSH, null, "utteranceId");
-                    playAudio.setIcon(AppCompatResources.getDrawable(getApplicationContext(), R.drawable.outline_pause_circle_outline_24));
-                    isSpeaking = true;
-                }
-            } else {
-                Toast.makeText(this, "Error, please select languages, translate, and then play audio", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
-            if (resultCode == RESULT_OK && data != null) {
-                ArrayList<String> result = data.getStringArrayListExtra(
-                        RecognizerIntent.EXTRA_RESULTS);
-                recordedText = Objects.requireNonNull(result).get(0);
-                recordedTextView.setText(recordedText);
-
-                if (translateToButton == null) {
-                    Toast.makeText(this, "Please select language to translate from", Toast.LENGTH_SHORT).show();
-                } else if (translateFromButton == null ) {
-                    Toast.makeText(this, "Please select language to translate to", Toast.LENGTH_SHORT).show();
-                } else if (translateToButton.equals(translateFromButton)) {
-                    Toast.makeText(this, "You cannot select the same language twice", Toast.LENGTH_SHORT).show();
-                } else if (recordedText == null || recordedText.isEmpty()) {
-                    Toast.makeText(this, "Please record voice first", Toast.LENGTH_SHORT).show();
-                } else {
-                    translate();
-                    initializeTextToSpeech();
-                }
-            }
-        }
-    }
-
-    private void checkRecordingPermissionAndRecord() {
-        if (ActivityCompat.checkSelfPermission(VoiceTranslateActivity.this,
-                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(VoiceTranslateActivity.this,
-                    new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_CODE_SPEECH_INPUT);
-        } else {
-           record();
-        }
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                record();
-            } else {
-                Toast.makeText(this, "Audio Recording Denied. Please Allow to record audio for full functionality.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void record() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageTranslateFrom);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to text");
-
-        try {
-            startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT);
-        }
-        catch (Exception e) {
-            Toast
-                    .makeText(VoiceTranslateActivity.this, " " + e.getMessage(), Toast.LENGTH_SHORT)
-                    .show();
-        }
-    }
-
 
     public void selectTranslateTo() {
         PopupMenu popupMenu = new PopupMenu(getApplicationContext(), selectTranslateTo);
@@ -261,6 +163,7 @@ public class VoiceTranslateActivity extends AppCompatActivity {
             String selectedLanguageTranslateTo = menuItem.getTitle().toString();
             selectTranslateTo.setText(selectedLanguageTranslateTo);
             sharedViewModel.setSelectedTranslateToLanguage(selectedLanguageTranslateTo);
+            getLanguageTo();
             Toast.makeText(getApplicationContext(), "You Clicked " + selectedLanguageTranslateTo, Toast.LENGTH_SHORT).show();
             return true;
         });
@@ -277,6 +180,7 @@ public class VoiceTranslateActivity extends AppCompatActivity {
             String selectedLanguageTranslateFrom = menuItem.getTitle().toString();
             selectTranslateFrom.setText(selectedLanguageTranslateFrom);
             sharedViewModel.setSelectedTranslateFromLanguage(selectedLanguageTranslateFrom);
+            getLanguageFrom();
             Toast.makeText(getApplicationContext(), "You Clicked " + selectedLanguageTranslateFrom, Toast.LENGTH_SHORT).show();
             return true;
         });
@@ -288,343 +192,513 @@ public class VoiceTranslateActivity extends AppCompatActivity {
         switch (translateToButton) {
             case "العربية (Arabic)":
                 languageTranslateTo = "ar";
-                selectedLocale = new Locale("ar");
+                selectedLocaleTo = new Locale("ar");
                 break;
             case "Български (Bulgarian)":
                 languageTranslateTo = "bg";
-                selectedLocale = new Locale("bg");
+                selectedLocaleTo = new Locale("bg");
                 break;
             case "বাংলা (Bengali)":
                 languageTranslateTo = "bn";
-                selectedLocale = new Locale("bn");
+                selectedLocaleTo = new Locale("bn");
                 break;
             case "Català (Catalan)":
                 languageTranslateTo = "ca";
-                selectedLocale = new Locale("ca");
+                selectedLocaleTo = new Locale("ca");
                 break;
             case "Čeština (Czech)":
                 languageTranslateTo = "cs";
-                selectedLocale = new Locale("cs");
+                selectedLocaleTo = new Locale("cs");
                 break;
             case "Cymraeg (Welsh)":
                 languageTranslateTo = "cy";
-                selectedLocale = new Locale("cy");
+                selectedLocaleTo = new Locale("cy");
                 break;
             case "Dansk (Danish)":
                 languageTranslateTo = "da";
-                selectedLocale = new Locale("da");
+                selectedLocaleTo = new Locale("da");
                 break;
             case "Deutsch (German)":
                 languageTranslateTo = "de";
-                selectedLocale = new Locale("de");
+                selectedLocaleTo = new Locale("de");
                 break;
             case "Ελληνικά (Greek)":
                 languageTranslateTo = "el";
-                selectedLocale = new Locale("el");
+                selectedLocaleTo = new Locale("el");
                 break;
             case "English (English)":
                 languageTranslateTo = "en";
-                selectedLocale = new Locale("en");
+                selectedLocaleTo = new Locale("en");
                 break;
             case "Español (Spanish)":
                 languageTranslateTo = "es";
-                selectedLocale = new Locale("es");
+                selectedLocaleTo = new Locale("es");
                 break;
             case "Eesti (Estonian)":
                 languageTranslateTo = "et";
-                selectedLocale = new Locale("et");
+                selectedLocaleTo = new Locale("et");
                 break;
             case "Suomi (Finnish)":
                 languageTranslateTo = "fi";
-                selectedLocale = new Locale("fi");
+                selectedLocaleTo = new Locale("fi");
                 break;
             case "Français (French)":
                 languageTranslateTo = "fr";
-                selectedLocale = new Locale("fr");
+                selectedLocaleTo = new Locale("fr");
                 break;
             case "ગુજરાતી (Gujarati)":
                 languageTranslateTo = "gu";
-                selectedLocale = new Locale("gu");
+                selectedLocaleTo = new Locale("gu");
                 break;
             case "עברית (Hebrew)":
                 languageTranslateTo = "he";
-                selectedLocale = new Locale("he");
+                selectedLocaleTo = new Locale("he");
                 break;
             case "हिन्दी (Hindi)":
                 languageTranslateTo = "hi";
-                selectedLocale = new Locale("hi");
+                selectedLocaleTo = new Locale("hi");
                 break;
             case "Hrvatski (Croatian)":
                 languageTranslateTo = "hr";
-                selectedLocale = new Locale("hr");
+                selectedLocaleTo = new Locale("hr");
                 break;
             case "Magyar (Hungarian)":
                 languageTranslateTo = "hu";
-                selectedLocale = new Locale("hu");
+                selectedLocaleTo = new Locale("hu");
                 break;
             case "Bahasa Indonesia (Indonesian)":
                 languageTranslateTo = "id";
-                selectedLocale = new Locale("id");
+                selectedLocaleTo = new Locale("id");
                 break;
             case "Íslenska (Icelandic)":
                 languageTranslateTo = "is";
-                selectedLocale = new Locale("is");
+                selectedLocaleTo = new Locale("is");
                 break;
             case "Italiano (Italian)":
                 languageTranslateTo = "it";
-                selectedLocale = new Locale("it");
+                selectedLocaleTo = new Locale("it");
                 break;
             case "日本語 (Japanese)":
                 languageTranslateTo = "ja";
-                selectedLocale = new Locale("ja");
+                selectedLocaleTo = new Locale("ja");
                 break;
             case "ಕನ್ನಡ (Kannada)":
                 languageTranslateTo = "kn";
-                selectedLocale = new Locale("kn");
+                selectedLocaleTo = new Locale("kn");
                 break;
             case "한국어 (Korean)":
                 languageTranslateTo = "ko";
-                selectedLocale = new Locale("ko");
+                selectedLocaleTo = new Locale("ko");
                 break;
             case "Lietuvių (Lithuanian)":
                 languageTranslateTo = "lt";
-                selectedLocale = new Locale("lt");
+                selectedLocaleTo = new Locale("lt");
                 break;
             case "मराठी (Marathi)":
                 languageTranslateTo = "mr";
-                selectedLocale = new Locale("mr");
+                selectedLocaleTo = new Locale("mr");
                 break;
             case "Bahasa Melayu (Malay)":
                 languageTranslateTo = "ms";
-                selectedLocale = new Locale("ms");
+                selectedLocaleTo = new Locale("ms");
                 break;
             case "Nederlands (Dutch)":
                 languageTranslateTo = "nl";
-                selectedLocale = new Locale("nl");
+                selectedLocaleTo = new Locale("nl");
                 break;
             case "Norsk (Norwegian)":
                 languageTranslateTo = "no";
-                selectedLocale = new Locale("no");
+                selectedLocaleTo = new Locale("no");
                 break;
             case "Polski (Polish)":
                 languageTranslateTo = "pl";
-                selectedLocale = new Locale("pl");
+                selectedLocaleTo = new Locale("pl");
                 break;
             case "Português (Portuguese)":
                 languageTranslateTo = "pt";
-                selectedLocale = new Locale("pt");
+                selectedLocaleTo = new Locale("pt");
                 break;
             case "Română (Romanian)":
                 languageTranslateTo = "ro";
-                selectedLocale = new Locale("ro");
+                selectedLocaleTo = new Locale("ro");
                 break;
             case "Русский (Russian)":
                 languageTranslateTo = "ru";
-                selectedLocale = new Locale("ru");
+                selectedLocaleTo = new Locale("ru");
                 break;
             case "Slovenčina (Slovak)":
                 languageTranslateTo = "sk";
-                selectedLocale = new Locale("sk");
+                selectedLocaleTo = new Locale("sk");
                 break;
             case "Shqip (Albanian)":
                 languageTranslateTo = "sq";
-                selectedLocale = new Locale("sq");
+                selectedLocaleTo = new Locale("sq");
                 break;
             case "Svenska (Swedish)":
                 languageTranslateTo = "sv";
-                selectedLocale = new Locale("sv");
+                selectedLocaleTo = new Locale("sv");
                 break;
             case "Kiswahili (Swahili)":
                 languageTranslateTo = "sw";
-                selectedLocale = new Locale("sw");
+                selectedLocaleTo = new Locale("sw");
                 break;
             case "தமிழ் (Tamil)":
                 languageTranslateTo = "ta";
-                selectedLocale = new Locale("ta");
+                selectedLocaleTo = new Locale("ta");
                 break;
             case "తెలుగు (Telugu)":
                 languageTranslateTo = "te";
-                selectedLocale = new Locale("te");
+                selectedLocaleTo = new Locale("te");
                 break;
             case "ไทย (Thai)":
                 languageTranslateTo = "th";
-                selectedLocale = new Locale("th");
+                selectedLocaleTo = new Locale("th");
                 break;
             case "Tagalog (Tagalog)":
                 languageTranslateTo = "tl";
-                selectedLocale = new Locale("tl");
+                selectedLocaleTo = new Locale("tl");
                 break;
             case "Türkçe (Turkish)":
                 languageTranslateTo = "tr";
-                selectedLocale = new Locale("tr");
+                selectedLocaleTo = new Locale("tr");
                 break;
             case "Українська (Ukrainian)":
                 languageTranslateTo = "uk";
-                selectedLocale = new Locale("uk");
+                selectedLocaleTo = new Locale("uk");
                 break;
             case "اردو (Urdu)":
                 languageTranslateTo = "ur";
-                selectedLocale = new Locale("ur");
+                selectedLocaleTo = new Locale("ur");
                 break;
             case "Tiếng Việt (Vietnamese)":
                 languageTranslateTo = "vi";
-                selectedLocale = new Locale("vi");
+                selectedLocaleTo = new Locale("vi");
                 break;
             case "中文 (Chinese)":
                 languageTranslateTo = "zh";
-                selectedLocale = new Locale("zh");
+                selectedLocaleTo = new Locale("zh");
                 break;
         }
     }
+
 
     public void getLanguageFrom() {
         switch (translateFromButton) {
             case "العربية (Arabic)":
                 languageTranslateFrom = "ar";
+                selectedLocaleFrom = new Locale("ar");
                 break;
             case "Български (Bulgarian)":
                 languageTranslateFrom = "bg";
+                selectedLocaleFrom = new Locale("bg");
                 break;
             case "বাংলা (Bengali)":
                 languageTranslateFrom = "bn";
+                selectedLocaleFrom = new Locale("bn");
                 break;
             case "Català (Catalan)":
                 languageTranslateFrom = "ca";
+                selectedLocaleFrom = new Locale("ca");
                 break;
             case "Čeština (Czech)":
                 languageTranslateFrom = "cs";
+                selectedLocaleFrom = new Locale("cs");
                 break;
             case "Cymraeg (Welsh)":
                 languageTranslateFrom = "cy";
+                selectedLocaleFrom = new Locale("cy");
                 break;
             case "Dansk (Danish)":
                 languageTranslateFrom = "da";
+                selectedLocaleFrom = new Locale("da");
                 break;
             case "Deutsch (German)":
                 languageTranslateFrom = "de";
+                selectedLocaleFrom = new Locale("de");
                 break;
             case "Ελληνικά (Greek)":
                 languageTranslateFrom = "el";
+                selectedLocaleFrom = new Locale("el");
                 break;
             case "English (English)":
                 languageTranslateFrom = "en";
+                selectedLocaleFrom = new Locale("en");
                 break;
             case "Español (Spanish)":
                 languageTranslateFrom = "es";
+                selectedLocaleFrom = new Locale("es");
                 break;
             case "Eesti (Estonian)":
                 languageTranslateFrom = "et";
+                selectedLocaleFrom = new Locale("et");
                 break;
             case "Suomi (Finnish)":
                 languageTranslateFrom = "fi";
+                selectedLocaleFrom = new Locale("fi");
                 break;
             case "Français (French)":
                 languageTranslateFrom = "fr";
+                selectedLocaleFrom = new Locale("fr");
                 break;
             case "ગુજરાતી (Gujarati)":
                 languageTranslateFrom = "gu";
+                selectedLocaleFrom = new Locale("gu");
                 break;
             case "עברית (Hebrew)":
                 languageTranslateFrom = "he";
+                selectedLocaleFrom = new Locale("he");
                 break;
             case "हिन्दी (Hindi)":
                 languageTranslateFrom = "hi";
+                selectedLocaleFrom = new Locale("hi");
                 break;
             case "Hrvatski (Croatian)":
                 languageTranslateFrom = "hr";
+                selectedLocaleFrom = new Locale("hr");
                 break;
             case "Magyar (Hungarian)":
                 languageTranslateFrom = "hu";
+                selectedLocaleFrom = new Locale("hu");
                 break;
             case "Bahasa Indonesia (Indonesian)":
                 languageTranslateFrom = "id";
+                selectedLocaleFrom = new Locale("id");
                 break;
             case "Íslenska (Icelandic)":
                 languageTranslateFrom = "is";
+                selectedLocaleFrom = new Locale("is");
                 break;
             case "Italiano (Italian)":
                 languageTranslateFrom = "it";
+                selectedLocaleFrom = new Locale("it");
                 break;
             case "日本語 (Japanese)":
                 languageTranslateFrom = "ja";
+                selectedLocaleFrom = new Locale("ja");
                 break;
             case "ಕನ್ನಡ (Kannada)":
                 languageTranslateFrom = "kn";
+                selectedLocaleFrom = new Locale("kn");
                 break;
             case "한국어 (Korean)":
                 languageTranslateFrom = "ko";
+                selectedLocaleFrom = new Locale("ko");
                 break;
             case "Lietuvių (Lithuanian)":
                 languageTranslateFrom = "lt";
+                selectedLocaleFrom = new Locale("lt");
                 break;
             case "मराठी (Marathi)":
                 languageTranslateFrom = "mr";
+                selectedLocaleFrom = new Locale("mr");
                 break;
             case "Bahasa Melayu (Malay)":
                 languageTranslateFrom = "ms";
+                selectedLocaleFrom = new Locale("ms");
                 break;
             case "Nederlands (Dutch)":
                 languageTranslateFrom = "nl";
+                selectedLocaleFrom = new Locale("nl");
                 break;
             case "Norsk (Norwegian)":
                 languageTranslateFrom = "no";
+                selectedLocaleFrom = new Locale("no");
                 break;
             case "Polski (Polish)":
                 languageTranslateFrom = "pl";
+                selectedLocaleFrom = new Locale("pl");
                 break;
             case "Português (Portuguese)":
                 languageTranslateFrom = "pt";
+                selectedLocaleFrom = new Locale("pt");
                 break;
             case "Română (Romanian)":
                 languageTranslateFrom = "ro";
+                selectedLocaleFrom = new Locale("ro");
                 break;
             case "Русский (Russian)":
                 languageTranslateFrom = "ru";
+                selectedLocaleFrom = new Locale("ru");
                 break;
             case "Slovenčina (Slovak)":
                 languageTranslateFrom = "sk";
+                selectedLocaleFrom = new Locale("sk");
                 break;
             case "Shqip (Albanian)":
                 languageTranslateFrom = "sq";
+                selectedLocaleFrom = new Locale("sq");
                 break;
             case "Svenska (Swedish)":
                 languageTranslateFrom = "sv";
+                selectedLocaleFrom = new Locale("sv");
                 break;
             case "Kiswahili (Swahili)":
                 languageTranslateFrom = "sw";
+                selectedLocaleFrom = new Locale("sw");
                 break;
             case "தமிழ் (Tamil)":
                 languageTranslateFrom = "ta";
+                selectedLocaleFrom = new Locale("ta");
                 break;
             case "తెలుగు (Telugu)":
                 languageTranslateFrom = "te";
+                selectedLocaleFrom = new Locale("te");
                 break;
             case "ไทย (Thai)":
                 languageTranslateFrom = "th";
+                selectedLocaleFrom = new Locale("th");
                 break;
             case "Tagalog (Tagalog)":
                 languageTranslateFrom = "tl";
+                selectedLocaleFrom = new Locale("tl");
                 break;
             case "Türkçe (Turkish)":
                 languageTranslateFrom = "tr";
+                selectedLocaleFrom = new Locale("tr");
                 break;
             case "Українська (Ukrainian)":
                 languageTranslateFrom = "uk";
+                selectedLocaleFrom = new Locale("uk");
                 break;
             case "اردو (Urdu)":
                 languageTranslateFrom = "ur";
+                selectedLocaleFrom = new Locale("ur");
                 break;
             case "Tiếng Việt (Vietnamese)":
                 languageTranslateFrom = "vi";
+                selectedLocaleFrom = new Locale("vi");
                 break;
             case "中文 (Chinese)":
                 languageTranslateFrom = "zh";
+                selectedLocaleFrom = new Locale("zh");
                 break;
         }
     }
 
 
-    private void translate() {
+    private void checkRecordingPermissionAndRecord() {
+        if (ActivityCompat.checkSelfPermission(ConversationActivity.this,
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ConversationActivity.this,
+                    new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_CODE_SPEECH_INPUT);
+        } else {
+            if (track == 1) {
+                record(languageTranslateFrom);
+            } if (track == 2) {
+                record(languageTranslateTo);
+            }
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (track == 1) {
+                    record(languageTranslateFrom);
+                } if (track == 2) {
+                    record(languageTranslateTo);
+                }
+            } else {
+                Toast.makeText(this, "Audio Recording Denied. Please Allow to record audio for full functionality.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void showSpeakingDialog() {
+        speakingDialog.setVisibility(View.INVISIBLE);
+    }
+
+
+    private void record(String languageTranslation) {
+        if (SpeechRecognizer.isRecognitionAvailable(this)) {
+            SpeechRecognizer speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            speechRecognizer.setRecognitionListener(new RecognitionListener() {
+                @Override
+                public void onReadyForSpeech(Bundle params) {
+                    if (track == 1) {
+                        speakingDialog.setVisibility(View.VISIBLE);
+                    } if (track == 2) {
+                        speakingDialog.setRotationX(180);
+                        speakingDialog.setRotationY(180);
+                        speakingDialog.setVisibility(View.VISIBLE);
+                    }
+                }
+
+                @Override
+                public void onBeginningOfSpeech() {
+                    if (track == 1) {
+                        speakingDialog.setVisibility(View.INVISIBLE);
+                    } if (track == 2) {
+                        speakingDialog.setVisibility(View.INVISIBLE);
+                    }
+                }
+
+                @Override
+                public void onRmsChanged(float rmsdB) {
+                    // Sound level changed
+                }
+
+                @Override
+                public void onBufferReceived(byte[] buffer) {
+                    // Audio buffer received
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+                    // User stopped speaking
+                }
+
+                @Override
+                public void onError(int error) {
+                    Toast.makeText(ConversationActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onResults(Bundle results) {
+                    // Access recognized text here
+                    ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                    if (matches != null && !matches.isEmpty()) {
+                        String recognizedText = matches.get(0);
+
+                        if (track == 1) {
+                            recordedText1 = recognizedText;
+                            person1TextView.setText(recordedText1);
+                            translate(languageTranslateFrom, languageTranslateTo);
+                        } if (track == 2) {
+                            recordedText2 = recognizedText;
+                            person2TextView.setText(recordedText2);
+                            translate(languageTranslateTo, languageTranslateFrom);
+                        }
+                    }
+                }
+
+                @Override
+                public void onPartialResults(Bundle partialResults) {
+                    // Handle partial recognition results
+                }
+
+                @Override
+                public void onEvent(int eventType, Bundle params) {
+                    // Reserved for future events
+                }
+            });
+
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageTranslation);
+            intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, languageTranslation);
+
+            speechRecognizer.startListening(intent);
+        } else {
+            Toast.makeText(ConversationActivity.this, "Speech recognition is not available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void translate(String languageTranslateFrom, String languageTranslateTo) {
         TranslatorOptions options = new TranslatorOptions.Builder()
                 .setTargetLanguage(languageTranslateTo)
                 .setSourceLanguage(languageTranslateFrom)
@@ -645,6 +719,11 @@ public class VoiceTranslateActivity extends AppCompatActivity {
                     }
 
                     if (isModelInstalled) {
+                        if (track == 1) {
+                            recordedText = recordedText1; // sets recorded text based on person
+                        } if (track == 2) {
+                            recordedText = recordedText2;
+                        }
                         translateWithModelAvailable(translator, recordedText);
                     } else {
                         PleaseWaitDialog progressDialog = progressDialogInstallation.getInstallationDialog(this);
@@ -653,7 +732,7 @@ public class VoiceTranslateActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to get downloaded models: " + e.getMessage());
-                    Toast.makeText(VoiceTranslateActivity.this, "Failed to check installed models.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ConversationActivity.this, "Failed to check installed models.", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -666,7 +745,7 @@ public class VoiceTranslateActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     progressDialog.dismiss();
                     Log.e(TAG, "Translation model download failed: " + e.getMessage());
-                    new MaterialAlertDialogBuilder(VoiceTranslateActivity.this)
+                    new MaterialAlertDialogBuilder(ConversationActivity.this)
                             .setMessage("Translation Failed. Please check your internet connection or try again later.")
                             .setPositiveButton("OK", null)
                             .show();
@@ -678,8 +757,17 @@ public class VoiceTranslateActivity extends AppCompatActivity {
         Task<String> result = translator.translate(sourceText)
                 .addOnSuccessListener(s -> {
                     progressDialogTranslation.dismissTranslateDialog();
-                    translatedText = s;
-                    translatedTextView.setText(translatedText);
+                    if (track == 1) {
+                        translatedText2 = s;
+                        person2TextView.setText(translatedText2);
+                        textToSpeech.speak(translatedText2, TextToSpeech.QUEUE_FLUSH, null, null);
+                    }
+
+                    if (track == 2) {
+                        translatedText1 = s;
+                        person1TextView.setText(translatedText1);
+                        textToSpeech.speak(translatedText1, TextToSpeech.QUEUE_FLUSH, null, null);
+                    }
                 })
                 .addOnFailureListener(e -> {
                     progressDialogTranslation.dismissTranslateDialog();
@@ -688,32 +776,23 @@ public class VoiceTranslateActivity extends AppCompatActivity {
                 });
     }
 
-    private void initializeTextToSpeech() {
+
+    private void textToSpeechPerson2() {
         textToSpeech = new TextToSpeech(getApplicationContext(), status -> {
             if (status != TextToSpeech.ERROR) {
-                textToSpeech.setLanguage(selectedLocale);
+                textToSpeech.setLanguage(selectedLocaleTo);
                 textToSpeech.getVoice();
-                textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                    @Override
-                    public void onStart(String utteranceId) {
-                        isSpeaking = true;
-                    }
+            } else {
+                Log.e("TextToSpeech", "Initialization failed");
+            }
+        });
+    }
 
-                    @Override
-                    public void onDone(String utteranceId) {
-                        isSpeaking = false;
-                        speechProgress = 0;
-                        runOnUiThread(() -> playAudio.setIcon(AppCompatResources.getDrawable(getApplicationContext(), R.drawable.outline_play_circle_24)));
-                    }
-
-                    @Override
-                    public void onError(String utteranceId) {}
-
-                    @Override
-                    public void onRangeStart(String utteranceId, int start, int end, int frame) {
-                        speechProgress = start;
-                    }
-                });
+    private void textToSpeechPerson1() {
+        textToSpeech = new TextToSpeech(getApplicationContext(), status -> {
+            if (status != TextToSpeech.ERROR) {
+                textToSpeech.setLanguage(selectedLocaleFrom);
+                textToSpeech.getVoice();
             } else {
                 Log.e("TextToSpeech", "Initialization failed");
             }
@@ -729,33 +808,38 @@ public class VoiceTranslateActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+
+
+
+
+
     /* Navbar Buttons */
-    void toText() {
-        startActivity(new Intent(VoiceTranslateActivity.this, TextTranslateActivity.class));
-        overridePendingTransition(0, 0);
-        finish();
-    }
-
     void toImage() {
-        startActivity(new Intent(VoiceTranslateActivity.this, ImageTranslateActivity.class));
+        startActivity(new Intent(ConversationActivity.this, ImageTranslateActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }
 
-    void toDownload() {
-        startActivity(new Intent(VoiceTranslateActivity.this,  DownloadLanguageTranslatePackages.class));
+    void toText() {
+        startActivity(new Intent(ConversationActivity.this, TextTranslateActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }
 
     void toVoice() {
-        startActivity(new Intent(VoiceTranslateActivity.this,  VoiceTranslateActivity.class));
+        startActivity(new Intent(ConversationActivity.this, VoiceTranslateActivity.class));
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    void toDownload() {
+        startActivity(new Intent(ConversationActivity.this,  DownloadLanguageTranslatePackages.class));
         overridePendingTransition(0, 0);
         finish();
     }
 
     void toConversation() {
-        startActivity(new Intent(VoiceTranslateActivity.this, ConversationActivity.class));
+        startActivity(new Intent(ConversationActivity.this, ConversationActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }

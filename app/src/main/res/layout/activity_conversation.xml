@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:background="@color/background_color"
+    android:layout_height="match_parent"
+    tools:context=".AlwaysAvailablePages.ConversationActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:layout_above="@id/navbar"
+        android:gravity="center"
+        android:layout_margin="10dp">
+
+
+        <LinearLayout
+            android:layout_width="375dp"
+            android:layout_height="200dp"
+            android:orientation="vertical"
+            android:id="@+id/person2">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/person2Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/background"
+                    android:backgroundTint="@color/activityBackground"
+                    android:gravity="top"
+                    android:hint="Person 2"
+                    android:padding="20dp"
+                    android:rotationX="180"
+                    android:rotationY="180"
+                    android:scrollbars="vertical"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/micPerson2"
+                    android:rotationX="180"
+                    android:rotationY="180"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="20dp"
+                    android:gravity="center"
+                    android:padding="0dp"
+                    app:icon="@drawable/outline_mic_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="20dp" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/selectTranslateTo"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:backgroundTint="@color/activityBackground"
+            android:rotationY="180"
+            android:rotationX="180"
+            android:layout_margin="10dp"
+            android:text="Select Language"
+            app:icon="@drawable/baseline_arrow_drop_down_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/selectTranslateFrom"
+            android:backgroundTint="@color/activityBackground"
+            android:layout_gravity="right"
+            android:layout_width="180dp"
+            android:layout_margin="10dp"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/baseline_arrow_drop_down_24"
+            android:text="Select Language"/>
+
+
+
+        <LinearLayout
+            android:layout_width="375dp"
+            android:layout_height="200dp"
+            android:orientation="vertical"
+            android:id="@+id/person1">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/person1Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/background"
+                    android:backgroundTint="@color/activityBackground"
+                    android:gravity="top"
+                    android:hint="Person 1"
+                    android:padding="20dp"
+                    android:scrollbars="vertical"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/micPerson1"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignBottom="@id/person1Text"
+                    android:layout_margin="20dp"
+                    android:gravity="center"
+                    app:icon="@drawable/outline_mic_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="20dp" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/speakingDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please start speaking:
+        \nThis will disappear as you start speaking"
+        android:textColor="@color/black"
+        android:padding="20dp"
+        android:elevation="10dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/background"
+        android:visibility="gone"/>
+
+
+
+    <!-- custom NavBar -->
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:padding="10dp"
+        android:background="@color/activityBackground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:id="@+id/navbar">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/image"
+            app:icon="@drawable/baseline_document_scanner_24"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/menu_icon"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/text"
+            android:background="@drawable/menu_icon"
+            app:icon="@drawable/baseline_text_snippet_24"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/audio"
+            android:background="@drawable/menu_icon"
+            app:icon="@drawable/outline_mic_24"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/conversation"
+            android:backgroundTint="@color/button_background"
+            app:icon="@drawable/conversation"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/downloadLanguages"
+            app:icon="@drawable/baseline_file_download_24"
+            android:background="@drawable/menu_icon"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:textAlignment="gravity"/>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

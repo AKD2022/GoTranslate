@@ -68,19 +68,21 @@
 
 
     <!-- custom NavBar -->
-
     <LinearLayout
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
         android:background="@color/activityBackground"
+        android:padding="10dp"
         android:layout_width="match_parent"
+        android:layout_gravity="bottom"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/image"
-            app:icon="@drawable/baseline_image_24"
+            app:icon="@drawable/baseline_document_scanner_24"
+            android:background="@drawable/menu_icon"
             android:gravity="center"
             android:padding="0dp"
             app:iconGravity="textStart"
@@ -89,9 +91,8 @@
             android:minHeight="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:layout_marginTop="30dp"
-            android:background="@drawable/menu_icon"
             android:textAlignment="gravity"/>
 
         <com.google.android.material.button.MaterialButton
@@ -106,7 +107,7 @@
             android:minHeight="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:textAlignment="gravity"/>
 
         <com.google.android.material.button.MaterialButton
@@ -121,13 +122,13 @@
             android:minHeight="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:textAlignment="gravity"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/downloadLanguages"
-            app:icon="@drawable/baseline_file_download_24"
-            android:backgroundTint="@color/button_background"
+            android:id="@+id/conversation"
+            android:background="@drawable/menu_icon"
+            app:icon="@drawable/conversation"
             android:gravity="center"
             android:padding="0dp"
             app:iconGravity="textStart"
@@ -136,11 +137,25 @@
             android:minHeight="50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
+            android:textAlignment="gravity"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/downloadLanguages"
+            android:backgroundTint="@color/button_background"
+            app:icon="@drawable/baseline_file_download_24"
+            android:gravity="center"
+            android:padding="0dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:textAlignment="gravity"/>
 
     </LinearLayout>
-
 
 
 </RelativeLayout>

@@ -5,11 +5,8 @@ import static android.content.ContentValues.TAG;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,32 +15,25 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.translate.MainActivity;
 import com.example.translate.ProgressDialog;
 import com.example.translate.R;
 import com.example.translate.SharedViewModels.SharedViewModelForTextTranslateActivity;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
 import com.google.mlkit.common.model.RemoteModelManager;
 import com.google.mlkit.nl.translate.TranslateRemoteModel;
 import com.tashila.pleasewait.PleaseWaitDialog;
-
-import java.util.Set;
 
 
 public class TextTranslateActivity extends AppCompatActivity {
@@ -55,7 +45,7 @@ public class TextTranslateActivity extends AppCompatActivity {
     private EditText typeTranslateFrom;
     private TextView translateToText;
     String translatedText, typedText;
-    private MaterialButton imageNav, textNav, voiceNav, downloadNav;
+    private MaterialButton imageNav, textNav, voiceNav, downloadNav, conversationNav;
 
     private SharedViewModelForTextTranslateActivity sharedViewModel;
 
@@ -81,11 +71,12 @@ public class TextTranslateActivity extends AppCompatActivity {
         copyBtn = findViewById(R.id.copyBtn);
 
 
-        /* Navigation Bar */
+        /* Navbar */
         imageNav = findViewById(R.id.image);
         textNav = findViewById(R.id.text);
         voiceNav = findViewById(R.id.audio);
         downloadNav = findViewById(R.id.downloadLanguages);
+        conversationNav = findViewById(R.id.conversation);
 
         imageNav.setOnClickListener(v -> {
             toImage();
@@ -101,6 +92,10 @@ public class TextTranslateActivity extends AppCompatActivity {
 
         downloadNav.setOnClickListener(v -> {
             toDownload();
+        });
+
+        conversationNav.setOnClickListener(v -> {
+            toConversation();
         });
 
         /* Bottom Navigation View */
@@ -601,12 +596,6 @@ public class TextTranslateActivity extends AppCompatActivity {
     }
 
     /* Navbar Buttons */
-    void toHome() {
-        startActivity(new Intent(TextTranslateActivity.this, MainActivity.class));
-        overridePendingTransition(0, 0);
-        finish();
-    }
-
     void toImage() {
         startActivity(new Intent(TextTranslateActivity.this, ImageTranslateActivity.class));
         overridePendingTransition(0, 0);
@@ -627,6 +616,12 @@ public class TextTranslateActivity extends AppCompatActivity {
 
     void toDownload() {
         startActivity(new Intent(TextTranslateActivity.this,  DownloadLanguageTranslatePackages.class));
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    void toConversation() {
+        startActivity(new Intent(TextTranslateActivity.this,  ConversationActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }

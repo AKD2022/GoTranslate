@@ -28,7 +28,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.translate.MainActivity;
 import com.example.translate.ProgressDialog;
 import com.example.translate.R;
 import com.example.translate.SharedViewModels.SharedViewModelForImageTranslateActivity;
@@ -66,7 +65,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
     private String languageTranslateTo, languageTranslateFrom; // define what language the code is given (use this for translation)
     private MaterialButton selectTranslateFrom, selectTranslateTo;
     String translatedText;
-    private MaterialButton imageNav, textNav, voiceNav, downloadNav;
+    private MaterialButton imageNav, textNav, voiceNav, downloadNav, conversationNav;
     ProgressDialog progressDialogInstallation = new ProgressDialog();
     ProgressDialog progressDialogTranslation = new ProgressDialog();
     ProgressDialog progressDialogRecognition = new ProgressDialog();
@@ -108,6 +107,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
         textNav = findViewById(R.id.text);
         voiceNav = findViewById(R.id.audio);
         downloadNav = findViewById(R.id.downloadLanguages);
+        conversationNav = findViewById(R.id.conversation);
 
         imageNav.setOnClickListener(v -> {
             toImage();
@@ -123,6 +123,10 @@ public class ImageTranslateActivity extends AppCompatActivity {
 
         downloadNav.setOnClickListener(v -> {
             toDownload();
+        });
+
+        conversationNav.setOnClickListener(v -> {
+            toConversation();
         });
 
 
@@ -248,8 +252,18 @@ public class ImageTranslateActivity extends AppCompatActivity {
                         Log.d(TAG, "onActivityResult: imageUri " + imageUri);
                         imageView.setImageURI(imageUri);
                         imageView.setBackground(null);
+                        translateToButton = selectTranslateTo.getText().toString();
+                        translateFromButton = selectTranslateFrom.getText().toString();
 
-
+                        if (translateToButton == null || translateToButton.isEmpty()) {
+                            Toast.makeText(getApplicationContext(), "Please select language to translate to", Toast.LENGTH_SHORT).show();
+                        } else if (translateFromButton == null || translateFromButton.isEmpty()) {
+                            Toast.makeText(getApplicationContext(), "Please select language to translate from", Toast.LENGTH_SHORT).show();
+                        } else if (translateToButton.equals(translateFromButton)) {
+                            Toast.makeText(getApplicationContext(), "You cannot select the same language twice", Toast.LENGTH_SHORT).show();
+                        } else {
+                            startRecognitionAndTranslation();
+                        }
                     } else {
                         Toast.makeText(getApplicationContext(), "Cancelled....", Toast.LENGTH_SHORT).show();
                     }
@@ -759,12 +773,6 @@ public class ImageTranslateActivity extends AppCompatActivity {
     }
 
     /* Navbar Buttons */
-    void toHome() {
-        startActivity(new Intent(ImageTranslateActivity.this, MainActivity.class));
-        overridePendingTransition(0, 0);
-        finish();
-    }
-
     void toImage() {
         startActivity(new Intent(ImageTranslateActivity.this, ImageTranslateActivity.class));
         overridePendingTransition(0, 0);
@@ -785,6 +793,12 @@ public class ImageTranslateActivity extends AppCompatActivity {
 
     void toDownload() {
         startActivity(new Intent(ImageTranslateActivity.this,  DownloadLanguageTranslatePackages.class));
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    void toConversation() {
+        startActivity(new Intent(ImageTranslateActivity.this,  ConversationActivity.class));
         overridePendingTransition(0, 0);
         finish();
     }
