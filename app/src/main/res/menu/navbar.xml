@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/image"
+        android:title="Document"
+        android:icon="@drawable/baseline_document_scanner_24" />
+
+    <item
+        android:id="@+id/text"
+        android:title="Text"
+        android:icon="@drawable/baseline_text_snippet_24" />
+
+    <item
+        android:id="@+id/audio"
+        android:title="Voice"
+        android:icon="@drawable/outline_mic_24" />
+
+    <item
+        android:id="@+id/conversation"
+        android:title="Conversation"
+        android:icon="@drawable/conversation" />
+
+    <item
+        android:id="@+id/downloadLanguages"
+        android:title="Download"
+        android:icon="@drawable/baseline_file_download_24" />
+
+</menu>

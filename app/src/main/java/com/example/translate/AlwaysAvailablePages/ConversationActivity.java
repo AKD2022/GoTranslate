@@ -37,6 +37,7 @@ import com.google.mlkit.nl.translate.TranslateRemoteModel;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
+import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 import com.tashila.pleasewait.PleaseWaitDialog;
 
 import java.util.ArrayList;
@@ -65,6 +66,8 @@ public class ConversationActivity extends AppCompatActivity {
     ProgressDialog progressDialogTranslation = new ProgressDialog();
     ProgressDialog progressDialogRecognition = new ProgressDialog();
 
+    ChipNavigationBar navigationBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,32 +82,25 @@ public class ConversationActivity extends AppCompatActivity {
         micPerson2 = findViewById(R.id.micPerson2);
         speakingDialog = findViewById(R.id.speakingDialog);
 
-        /* Navbar */
-        imageNav = findViewById(R.id.image);
-        textNav = findViewById(R.id.text);
-        voiceNav = findViewById(R.id.audio);
-        downloadNav = findViewById(R.id.downloadLanguages);
-        conversationNav = findViewById(R.id.conversation);
+        /* Navigation Bar */
+        navigationBar = findViewById(R.id.menu);
+        navigationBar.setItemSelected(R.id.conversation, true);
 
-        imageNav.setOnClickListener(v -> {
-            toImage();
+        navigationBar.setOnItemSelectedListener(i -> {
+            if (i == R.id.image) {
+                toImage();
+            } else if (i == R.id.text) {
+                toText();
+            } else if (i == R.id.audio){
+                toVoice();
+            } else if (i == R.id.conversation) {
+                toConversation();
+            } else if (i == R.id.downloadLanguages) {
+                toDownload();
+            }
         });
 
-        textNav.setOnClickListener(v -> {
-            toText();
-        });
 
-        voiceNav.setOnClickListener(v -> {
-            toVoice();
-        });
-
-        downloadNav.setOnClickListener(v -> {
-            toDownload();
-        });
-
-        conversationNav.setOnClickListener(v -> {
-            toConversation();
-        });
 
         /* Shared View Model */
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModelForConversationActivity.class);
@@ -816,31 +812,31 @@ public class ConversationActivity extends AppCompatActivity {
     /* Navbar Buttons */
     void toImage() {
         startActivity(new Intent(ConversationActivity.this, ImageTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toText() {
         startActivity(new Intent(ConversationActivity.this, TextTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toVoice() {
         startActivity(new Intent(ConversationActivity.this, VoiceTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toDownload() {
         startActivity(new Intent(ConversationActivity.this,  DownloadLanguageTranslatePackages.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toConversation() {
         startActivity(new Intent(ConversationActivity.this, ConversationActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 }

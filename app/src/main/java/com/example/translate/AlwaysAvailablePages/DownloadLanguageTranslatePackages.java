@@ -21,6 +21,7 @@ import com.google.mlkit.nl.translate.TranslateRemoteModel;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
+import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 import com.tashila.pleasewait.PleaseWaitDialog;
 
 public class DownloadLanguageTranslatePackages extends AppCompatActivity {
@@ -35,6 +36,8 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
     ProgressDialog progressDialogTranslation = new ProgressDialog();
     ProgressDialog progressDialogRecognition = new ProgressDialog();
 
+    ChipNavigationBar navigationBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,31 +49,23 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
 
 
         /* Navigation Bar */
+        navigationBar = findViewById(R.id.menu);
+        navigationBar.setItemSelected(R.id.downloadLanguages, true);
 
-        imageNav = findViewById(R.id.image);
-        textNav = findViewById(R.id.text);
-        voiceNav = findViewById(R.id.audio);
-        downloadNav = findViewById(R.id.downloadLanguages);
-
-        imageNav.setOnClickListener(v -> {
-            toImage();
+        navigationBar.setOnItemSelectedListener(i -> {
+            if (i == R.id.image) {
+                toImage();
+            } else if (i == R.id.text) {
+                toText();
+            } else if (i == R.id.audio){
+                toVoice();
+            } else if (i == R.id.conversation) {
+                toConversation();
+            } else if (i == R.id.downloadLanguages) {
+                toDownload();
+            }
         });
 
-        textNav.setOnClickListener(v -> {
-            toText();
-        });
-
-        voiceNav.setOnClickListener(v -> {
-            toVoice();
-        });
-
-        downloadNav.setOnClickListener(v -> {
-            toDownload();
-        });
-
-        conversationNav.setOnClickListener(v -> {
-            toConversation();
-        });
 
 
         /* End of Navigation Bar */
@@ -485,31 +480,31 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
 
     void toImage() {
         startActivity(new Intent(DownloadLanguageTranslatePackages.this, ImageTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toText() {
         startActivity(new Intent(DownloadLanguageTranslatePackages.this, TextTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toVoice() {
         startActivity(new Intent(DownloadLanguageTranslatePackages.this, VoiceTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toDownload() {
         startActivity(new Intent(DownloadLanguageTranslatePackages.this,  DownloadLanguageTranslatePackages.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toConversation() {
         startActivity(new Intent(DownloadLanguageTranslatePackages.this,  ConversationActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 

@@ -11,6 +11,8 @@
     /* New Colors */
     <color name="background_color">#DED6D6</color>
     <color name="activityBackground">#B7B4B4</color>
+    <color name="navbarUnselected">#7E57E0</color>
+    <color name="navbarBackground">#908D92</color>
     <color name="transparent">#00050505</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>

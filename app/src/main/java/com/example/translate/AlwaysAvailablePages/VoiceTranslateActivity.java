@@ -8,10 +8,13 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
+import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,11 +35,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.mlkit.common.model.RemoteModelManager;
 import com.google.mlkit.nl.translate.TranslateRemoteModel;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
+import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 import com.tashila.pleasewait.PleaseWaitDialog;
 
 import java.util.ArrayList;
@@ -59,12 +64,15 @@ public class VoiceTranslateActivity extends AppCompatActivity {
     private int speechProgress = 0;
     private static final int REQUEST_CODE_SPEECH_INPUT = 1;
     private boolean isSpeaking = false;
+    private MaterialTextView speakingDialog;
 
     private SharedViewModelForVoiceTranslateActivity sharedViewModel;
 
     ProgressDialog progressDialogInstallation = new ProgressDialog();
     ProgressDialog progressDialogTranslation = new ProgressDialog();
     ProgressDialog progressDialogRecognition = new ProgressDialog();
+
+    ChipNavigationBar navigationBar;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -80,38 +88,26 @@ public class VoiceTranslateActivity extends AppCompatActivity {
         recordedTextView = findViewById(R.id.recordedTextView);
         translatedTextView = findViewById(R.id.translatedTextView);
         playAudio = findViewById(R.id.playAudio);
+        speakingDialog = findViewById(R.id.speakingDialog);
 
 
-        /* Bottom Navigation View */
-        MaterialButton imageNav, textNav, voiceNav, downloadNav, conversationNav;
+        /* Navigation Bar */
+        navigationBar = findViewById(R.id.menu);
+        navigationBar.setItemSelected(R.id.audio, true);
 
-        imageNav = findViewById(R.id.image);
-        textNav = findViewById(R.id.text);
-        voiceNav = findViewById(R.id.audio);
-        downloadNav = findViewById(R.id.downloadLanguages);
-        conversationNav = findViewById(R.id.conversation);
-
-        imageNav.setOnClickListener(v -> {
-            toImage();
+        navigationBar.setOnItemSelectedListener(i -> {
+            if (i == R.id.image) {
+                toImage();
+            } else if (i == R.id.text) {
+                toText();
+            } else if (i == R.id.audio){
+                toVoice();
+            } else if (i == R.id.conversation) {
+                toConversation();
+            } else if (i == R.id.downloadLanguages) {
+                toDownload();
+            }
         });
-
-        textNav.setOnClickListener(v -> {
-            toText();
-        });
-
-        voiceNav.setOnClickListener(v -> {
-            toVoice();
-        });
-
-        downloadNav.setOnClickListener(v -> {
-            toDownload();
-        });
-
-        conversationNav.setOnClickListener(v -> {
-            toConversation();
-        });
-        /* Bottom Navigation View */
-
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModelForVoiceTranslateActivity.class);
 
         sharedViewModel.getSelectedTranslateToLanguage().observe(this, selectedLanguageTranslateTo -> {
@@ -169,7 +165,6 @@ public class VoiceTranslateActivity extends AppCompatActivity {
             }
 
             if (translatedText != null && !translatedText.isEmpty() || translateToButton != null && !translateToButton.isEmpty() || translateFromButton != null && !translateFromButton.isEmpty()) {
-
                 if (isSpeaking) {
                     textToSpeech.stop();
                     playAudio.setIcon(AppCompatResources.getDrawable(getApplicationContext(), R.drawable.outline_play_circle_24));
@@ -179,6 +174,12 @@ public class VoiceTranslateActivity extends AppCompatActivity {
                     playAudio.setIcon(AppCompatResources.getDrawable(getApplicationContext(), R.drawable.outline_pause_circle_outline_24));
                     isSpeaking = true;
                 }
+                if (speechProgress < translatedText.length()) {
+                    textToSpeech.speak(translatedText.substring(speechProgress), TextToSpeech.QUEUE_FLUSH, null, "utteranceId");
+                } else {
+                    Toast.makeText(this, "Error in speech progress", Toast.LENGTH_SHORT).show();
+                }
+
             } else {
                 Toast.makeText(this, "Error, please select languages, translate, and then play audio", Toast.LENGTH_SHORT).show();
             }
@@ -217,7 +218,7 @@ public class VoiceTranslateActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(VoiceTranslateActivity.this,
                     new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_CODE_SPEECH_INPUT);
         } else {
-           record();
+           record(languageTranslateFrom);
         }
 
     }
@@ -228,26 +229,78 @@ public class VoiceTranslateActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                record();
+                record(languageTranslateFrom);
             } else {
                 Toast.makeText(this, "Audio Recording Denied. Please Allow to record audio for full functionality.", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private void record() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageTranslateFrom);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to text");
+    private void record(String languageTranslation) {
+        if (SpeechRecognizer.isRecognitionAvailable(this)) {
+            SpeechRecognizer speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            speechRecognizer.setRecognitionListener(new RecognitionListener() {
+                @Override
+                public void onReadyForSpeech(Bundle params) {
+                    speakingDialog.setVisibility(View.VISIBLE);
+                }
 
-        try {
-            startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT);
-        }
-        catch (Exception e) {
-            Toast
-                    .makeText(VoiceTranslateActivity.this, " " + e.getMessage(), Toast.LENGTH_SHORT)
-                    .show();
+                @Override
+                public void onBeginningOfSpeech() {
+                    speakingDialog.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onRmsChanged(float rmsdB) {
+                    // Sound level changed
+                }
+
+                @Override
+                public void onBufferReceived(byte[] buffer) {
+                    // Audio buffer received
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+                    // User stopped speaking
+                }
+
+                @Override
+                public void onError(int error) {
+                    Toast.makeText(VoiceTranslateActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onResults(Bundle results) {
+                    // Access recognized text here
+                    ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                    if (matches != null && !matches.isEmpty()) {
+                        String recognizedText = matches.get(0);
+                        recordedText = recognizedText;
+                        recordedTextView.setText(recordedText);
+                        translate();
+                    }
+                }
+
+                @Override
+                public void onPartialResults(Bundle partialResults) {
+                    // Handle partial recognition results
+                }
+
+                @Override
+                public void onEvent(int eventType, Bundle params) {
+                    // Reserved for future events
+                }
+            });
+
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageTranslation);
+            intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, languageTranslation);
+
+            speechRecognizer.startListening(intent);
+        } else {
+            Toast.makeText(VoiceTranslateActivity.this, "Speech recognition is not available", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -680,6 +733,7 @@ public class VoiceTranslateActivity extends AppCompatActivity {
                     progressDialogTranslation.dismissTranslateDialog();
                     translatedText = s;
                     translatedTextView.setText(translatedText);
+                    initializeTextToSpeech();
                 })
                 .addOnFailureListener(e -> {
                     progressDialogTranslation.dismissTranslateDialog();
@@ -715,7 +769,7 @@ public class VoiceTranslateActivity extends AppCompatActivity {
                     }
                 });
             } else {
-                Log.e("TextToSpeech", "Initialization failed");
+                Toast.makeText(this, TextToSpeech.ERROR, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -732,31 +786,31 @@ public class VoiceTranslateActivity extends AppCompatActivity {
     /* Navbar Buttons */
     void toText() {
         startActivity(new Intent(VoiceTranslateActivity.this, TextTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toImage() {
         startActivity(new Intent(VoiceTranslateActivity.this, ImageTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toDownload() {
         startActivity(new Intent(VoiceTranslateActivity.this,  DownloadLanguageTranslatePackages.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toVoice() {
         startActivity(new Intent(VoiceTranslateActivity.this,  VoiceTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toConversation() {
         startActivity(new Intent(VoiceTranslateActivity.this, ConversationActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 }

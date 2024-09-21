@@ -102,96 +102,26 @@
 
 
 
-
-
-
-    <!-- custom NavBar -->
-    <LinearLayout
-        android:layout_alignParentBottom="true"
-        android:layout_centerInParent="true"
-        android:background="@color/activityBackground"
+    <!-- Navbar -->
+    <com.ismaeldivita.chipnavigation.ChipNavigationBar
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:id="@+id/menu"
         android:layout_width="match_parent"
-        android:layout_gravity="bottom"
-        android:padding="10dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/image"
-            app:icon="@drawable/baseline_document_scanner_24"
-            android:background="@drawable/menu_icon"
-            android:gravity="center"
-            android:padding="0dp"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            android:minWidth="50dp"
-            android:minHeight="50dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_marginTop="30dp"
-            android:textAlignment="gravity"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/text"
-            android:backgroundTint="@color/button_background"
-            app:icon="@drawable/baseline_text_snippet_24"
-            android:gravity="center"
-            android:padding="0dp"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            android:minWidth="50dp"
-            android:minHeight="50dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:textAlignment="gravity"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/audio"
-            android:background="@drawable/menu_icon"
-            app:icon="@drawable/outline_mic_24"
-            android:gravity="center"
-            android:padding="0dp"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            android:minWidth="50dp"
-            android:minHeight="50dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:textAlignment="gravity"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/conversation"
-            android:background="@drawable/menu_icon"
-            app:icon="@drawable/conversation"
-            android:gravity="center"
-            android:padding="0dp"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            android:minWidth="50dp"
-            android:minHeight="50dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:textAlignment="gravity"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/downloadLanguages"
-            android:background="@drawable/menu_icon"
-            app:icon="@drawable/baseline_file_download_24"
-            android:gravity="center"
-            android:padding="0dp"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            android:minWidth="50dp"
-            android:minHeight="50dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:textAlignment="gravity"/>
-
-    </LinearLayout>
+        app:cnb_menuResource="@menu/navbar"
+        android:background="@drawable/navbar_background"
+        android:layout_alignParentBottom="true"
+        app:cnb_orientationMode="horizontal"
+        app:cnb_addBottomInset="false"
+        app:cnb_addLeftInset="false"
+        app:cnb_addRightInset="false"
+        app:cnb_addTopInset="false"
+        app:cnb_unselectedColor="@color/navbarUnselected"
+        app:cnb_textColor="@color/button_background"
+        android:padding="15dp"
+        app:cnb_radius="8dp"
+        app:cnb_iconSize="15dp"
+        app:cnb_animationDuration="175"/>
 </RelativeLayout>

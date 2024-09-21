@@ -48,6 +48,7 @@ import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions;
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions;
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 import com.tashila.pleasewait.PleaseWaitDialog;
 
 import java.io.File;
@@ -73,6 +74,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
     
     /* Shared View Model */
     private SharedViewModelForImageTranslateActivity sharedViewModelForImageTranslateActivity;
+    ChipNavigationBar navigationBar;
 
     // When using Latin script library
     TextRecognizer defaultRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
@@ -102,32 +104,23 @@ public class ImageTranslateActivity extends AppCompatActivity {
 
 
         /* Navigation Bar */
+        navigationBar = findViewById(R.id.menu);
+        navigationBar.setItemSelected(R.id.image, true);
 
-        imageNav = findViewById(R.id.image);
-        textNav = findViewById(R.id.text);
-        voiceNav = findViewById(R.id.audio);
-        downloadNav = findViewById(R.id.downloadLanguages);
-        conversationNav = findViewById(R.id.conversation);
-
-        imageNav.setOnClickListener(v -> {
-            toImage();
+        navigationBar.setOnItemSelectedListener(i -> {
+            if (i == R.id.image) {
+                toImage();
+            } else if (i == R.id.text) {
+                toText();
+            } else if (i == R.id.audio){
+                toVoice();
+            } else if (i == R.id.conversation) {
+                toConversation();
+            } else if (i == R.id.downloadLanguages) {
+                toDownload();
+            }
         });
 
-        textNav.setOnClickListener(v -> {
-            toText();
-        });
-
-        voiceNav.setOnClickListener(v -> {
-            toVoice();
-        });
-
-        downloadNav.setOnClickListener(v -> {
-            toDownload();
-        });
-
-        conversationNav.setOnClickListener(v -> {
-            toConversation();
-        });
 
 
         /* End of Navigation Bar */
@@ -775,31 +768,31 @@ public class ImageTranslateActivity extends AppCompatActivity {
     /* Navbar Buttons */
     void toImage() {
         startActivity(new Intent(ImageTranslateActivity.this, ImageTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toText() {
         startActivity(new Intent(ImageTranslateActivity.this, TextTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toVoice() {
         startActivity(new Intent(ImageTranslateActivity.this, VoiceTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toDownload() {
         startActivity(new Intent(ImageTranslateActivity.this,  DownloadLanguageTranslatePackages.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toConversation() {
         startActivity(new Intent(ImageTranslateActivity.this,  ConversationActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 }

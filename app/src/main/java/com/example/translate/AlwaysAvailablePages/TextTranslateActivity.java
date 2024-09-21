@@ -33,6 +33,7 @@ import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
 import com.google.mlkit.common.model.RemoteModelManager;
 import com.google.mlkit.nl.translate.TranslateRemoteModel;
+import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 import com.tashila.pleasewait.PleaseWaitDialog;
 
 
@@ -53,6 +54,8 @@ public class TextTranslateActivity extends AppCompatActivity {
     ProgressDialog progressDialogTranslation = new ProgressDialog();
     ProgressDialog progressDialogRecognition = new ProgressDialog();
 
+    ChipNavigationBar navigationBar;
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,30 +75,22 @@ public class TextTranslateActivity extends AppCompatActivity {
 
 
         /* Navbar */
-        imageNav = findViewById(R.id.image);
-        textNav = findViewById(R.id.text);
-        voiceNav = findViewById(R.id.audio);
-        downloadNav = findViewById(R.id.downloadLanguages);
-        conversationNav = findViewById(R.id.conversation);
+        /* Navigation Bar */
+        navigationBar = findViewById(R.id.menu);
+        navigationBar.setItemSelected(R.id.text, true);
 
-        imageNav.setOnClickListener(v -> {
-            toImage();
-        });
-
-        textNav.setOnClickListener(v -> {
-            toText();
-        });
-
-        voiceNav.setOnClickListener(v -> {
-            toVoice();
-        });
-
-        downloadNav.setOnClickListener(v -> {
-            toDownload();
-        });
-
-        conversationNav.setOnClickListener(v -> {
-            toConversation();
+        navigationBar.setOnItemSelectedListener(i -> {
+            if (i == R.id.image) {
+                toImage();
+            } else if (i == R.id.text) {
+                toText();
+            } else if (i == R.id.audio){
+                toVoice();
+            } else if (i == R.id.conversation) {
+                toConversation();
+            } else if (i == R.id.downloadLanguages) {
+                toDownload();
+            }
         });
 
         /* Bottom Navigation View */
@@ -598,31 +593,31 @@ public class TextTranslateActivity extends AppCompatActivity {
     /* Navbar Buttons */
     void toImage() {
         startActivity(new Intent(TextTranslateActivity.this, ImageTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toText() {
         startActivity(new Intent(TextTranslateActivity.this, TextTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toVoice() {
         startActivity(new Intent(TextTranslateActivity.this, VoiceTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toDownload() {
         startActivity(new Intent(TextTranslateActivity.this,  DownloadLanguageTranslatePackages.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toConversation() {
         startActivity(new Intent(TextTranslateActivity.this,  ConversationActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 }
