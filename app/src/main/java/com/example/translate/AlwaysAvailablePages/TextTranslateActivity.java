@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
@@ -136,7 +138,7 @@ public class TextTranslateActivity extends AppCompatActivity {
         typeTranslateFrom.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // Not used
+
             }
 
             @Override
@@ -154,26 +156,6 @@ public class TextTranslateActivity extends AppCompatActivity {
                 // Not used
             }
         });
-
-
-        /*
-        translate.setOnClickListener(view ->{
-            if (translateToButton == null) {
-                Toast.makeText(this, "Please select language to translate to", Toast.LENGTH_SHORT).show();
-            } else if (translateFromButton == null ) {
-                Toast.makeText(this, "Please select language to translate from", Toast.LENGTH_SHORT).show();
-            } else if (translateToButton.equals(translateFromButton)) {
-                Toast.makeText(this, "You cannot select the same language twice", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                getLanguageTo();
-                getLanguageFrom();
-                getTextFromEditText();
-                translate();
-            }
-        });
-        */
-
     }
 
 
@@ -512,7 +494,6 @@ public class TextTranslateActivity extends AppCompatActivity {
         RemoteModelManager modelManager = RemoteModelManager.getInstance();
         TranslateRemoteModel model = new TranslateRemoteModel.Builder(languageTranslateTo).build();
 
-        // Check if the translation model is already downloaded
         modelManager.getDownloadedModels(TranslateRemoteModel.class)
                 .addOnSuccessListener(models -> {
                     boolean isModelInstalled = false;

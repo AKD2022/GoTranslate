@@ -4,6 +4,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_centerInParent="true"
     android:background="@color/background_color"
     tools:context=".AlwaysAvailablePages.ImageTranslateActivity">
 
@@ -105,25 +106,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
-
-    <FrameLayout
-        android:layout_below="@id/imageContainer"
-        android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <!-- Translate Btn -->
-        <com.google.android.material.button.MaterialButton
-            android:elevation="10dp"
-            android:id="@+id/translate"
-            android:backgroundTint="@color/activityBackground"
-            app:backgroundTint="@color/transparent"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_marginTop="10dp"
-            android:text="Translate"
-            app:icon="@drawable/baseline_translate_24" />
-
-    </FrameLayout>
 
     <!-- Navbar -->
     <com.ismaeldivita.chipnavigation.ChipNavigationBar

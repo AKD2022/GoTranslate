@@ -22,9 +22,6 @@
         android:theme="@style/Theme.Translate"
         tools:targetApi="31">
         <activity
-            android:name=".AlwaysAvailablePages.ConversationActivity"
-            android:exported="false" />
-        <activity
             android:name=".AlwaysAvailablePages.DownloadLanguageTranslatePackages"
             android:exported="false" />
         <activity
@@ -46,8 +43,11 @@
             android:name=".AlwaysAvailablePages.TextTranslateActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
-            android:exported="false"></activity>
+            android:name=".AlwaysAvailablePages.ConversationActivity"
+            android:exported="false">
+        </activity>
+
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -66,15 +66,16 @@ public class ImageTranslateActivity extends AppCompatActivity {
     private String languageTranslateTo, languageTranslateFrom; // define what language the code is given (use this for translation)
     private MaterialButton selectTranslateFrom, selectTranslateTo;
     String translatedText;
-    private MaterialButton imageNav, textNav, voiceNav, downloadNav, conversationNav;
+    private MaterialButton imageNav, textNav, voiceNav, downloadNav;
     ProgressDialog progressDialogInstallation = new ProgressDialog();
     ProgressDialog progressDialogTranslation = new ProgressDialog();
     ProgressDialog progressDialogRecognition = new ProgressDialog();
 
-    
+    ChipNavigationBar navigationBar;
+
+
     /* Shared View Model */
     private SharedViewModelForImageTranslateActivity sharedViewModelForImageTranslateActivity;
-    ChipNavigationBar navigationBar;
 
     // When using Latin script library
     TextRecognizer defaultRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
@@ -97,7 +98,6 @@ public class ImageTranslateActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         takePicture = findViewById(R.id.takePicture);
         selectImage = findViewById(R.id.openPhotos);
-        translate = findViewById(R.id.translate);
         selectTranslateFrom = findViewById(R.id.selectTranslateFrom);
         selectTranslateTo = findViewById(R.id.selectTranslateTo);
 
@@ -122,7 +122,6 @@ public class ImageTranslateActivity extends AppCompatActivity {
         });
 
 
-
         /* End of Navigation Bar */
 
         /* Camera */
@@ -135,21 +134,6 @@ public class ImageTranslateActivity extends AppCompatActivity {
 
         selectImage.setOnClickListener(view -> {
             openFolderWithImages();
-        });
-
-        translate.setOnClickListener(view ->{
-            translateToButton = selectTranslateTo.getText().toString();
-            translateFromButton = selectTranslateFrom.getText().toString();
-
-            if (translateToButton == null || translateToButton.isEmpty()) {
-                Toast.makeText(this, "Please select language to translate to", Toast.LENGTH_SHORT).show();
-            } else if (translateFromButton == null || translateFromButton.isEmpty()) {
-                Toast.makeText(this, "Please select language to translate from", Toast.LENGTH_SHORT).show();
-            } else if (translateToButton.equals(translateFromButton)) {
-                Toast.makeText(this, "You cannot select the same language twice", Toast.LENGTH_SHORT).show();
-            } else {
-                startRecognitionAndTranslation();
-            }
         });
 
         sharedViewModelForImageTranslateActivity = new ViewModelProvider(this).get(SharedViewModelForImageTranslateActivity.class);
@@ -192,9 +176,9 @@ public class ImageTranslateActivity extends AppCompatActivity {
     private Uri createUri() {
         File imageFile = new File(getApplicationContext().getFilesDir(), "translate_photo.jpg");
         return FileProvider.getUriForFile(
-            getApplicationContext(),
-            "com.example.translate.fileProvider",
-            imageFile
+                getApplicationContext(),
+                "com.example.translate.fileProvider",
+                imageFile
         );
     }
 
@@ -245,6 +229,10 @@ public class ImageTranslateActivity extends AppCompatActivity {
                         Log.d(TAG, "onActivityResult: imageUri " + imageUri);
                         imageView.setImageURI(imageUri);
                         imageView.setBackground(null);
+
+                        getLanguageFrom();
+                        getLanguageTo();
+
                         translateToButton = selectTranslateTo.getText().toString();
                         translateFromButton = selectTranslateFrom.getText().toString();
 
@@ -768,31 +756,31 @@ public class ImageTranslateActivity extends AppCompatActivity {
     /* Navbar Buttons */
     void toImage() {
         startActivity(new Intent(ImageTranslateActivity.this, ImageTranslateActivity.class));
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(0, 0);
         finish();
     }
 
     void toText() {
         startActivity(new Intent(ImageTranslateActivity.this, TextTranslateActivity.class));
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(0, 0);
         finish();
     }
 
     void toVoice() {
         startActivity(new Intent(ImageTranslateActivity.this, VoiceTranslateActivity.class));
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(0, 0);
         finish();
     }
 
     void toDownload() {
         startActivity(new Intent(ImageTranslateActivity.this,  DownloadLanguageTranslatePackages.class));
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(0, 0);
         finish();
     }
 
     void toConversation() {
         startActivity(new Intent(ImageTranslateActivity.this,  ConversationActivity.class));
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(0, 0);
         finish();
     }
 }

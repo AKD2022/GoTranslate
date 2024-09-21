@@ -102,6 +102,7 @@
 
 
 
+
     <!-- Navbar -->
     <com.ismaeldivita.chipnavigation.ChipNavigationBar
         android:layout_marginBottom="20dp"

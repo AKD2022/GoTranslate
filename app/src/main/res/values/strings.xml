@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Translate</string>
+    <string name="app_name">GoTranslate</string>
 
     <string name="heading_1">Welcome to (APP NAME)</string>
     <string name="heading_2">To Begin...</string>
