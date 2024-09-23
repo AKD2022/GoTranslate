@@ -756,31 +756,31 @@ public class ImageTranslateActivity extends AppCompatActivity {
     /* Navbar Buttons */
     void toImage() {
         startActivity(new Intent(ImageTranslateActivity.this, ImageTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toText() {
         startActivity(new Intent(ImageTranslateActivity.this, TextTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toVoice() {
         startActivity(new Intent(ImageTranslateActivity.this, VoiceTranslateActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toDownload() {
         startActivity(new Intent(ImageTranslateActivity.this,  DownloadLanguageTranslatePackages.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 
     void toConversation() {
         startActivity(new Intent(ImageTranslateActivity.this,  ConversationActivity.class));
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }
 }
