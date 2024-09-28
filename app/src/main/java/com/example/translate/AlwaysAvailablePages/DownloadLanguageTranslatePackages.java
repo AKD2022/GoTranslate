@@ -454,7 +454,7 @@ public class DownloadLanguageTranslatePackages extends AppCompatActivity {
 
                     } else {
                         progressDialogInstallation.getInstallationDialog(this);
-                        downloadModel(translator, progressDialogInstallation.dismissInstallationDialog());
+                        downloadModel(translator, progressDialogInstallation.getInstallationDialog(this));
                     }
                 })
                 .addOnFailureListener(e -> {

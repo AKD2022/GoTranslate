@@ -192,6 +192,22 @@ public class ImageTranslateActivity extends AppCompatActivity {
                             if (o) {
                                 imageView.setImageURI(null);
                                 imageView.setImageURI(imageUri);
+
+                                getLanguageFrom();
+                                getLanguageTo();
+
+                                translateToButton = selectTranslateTo.getText().toString();
+                                translateFromButton = selectTranslateFrom.getText().toString();
+
+                                if (translateToButton == null || translateToButton.isEmpty()) {
+                                    Toast.makeText(getApplicationContext(), "Please select language to translate to", Toast.LENGTH_SHORT).show();
+                                } else if (translateFromButton == null || translateFromButton.isEmpty()) {
+                                    Toast.makeText(getApplicationContext(), "Please select language to translate from", Toast.LENGTH_SHORT).show();
+                                } else if (translateToButton.equals(translateFromButton)) {
+                                    Toast.makeText(getApplicationContext(), "You cannot select the same language twice", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    startRecognitionAndTranslation();
+                                }
                             }
                         } catch (Exception e) {
                             e.getStackTrace();
@@ -259,6 +275,7 @@ public class ImageTranslateActivity extends AppCompatActivity {
         if (requestCode == CAMERA_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 takePictureLauncher.launch(imageUri);
+
             } else {
                 Toast.makeText(this, "Camera Permission Denied, please allow Permission to take camera", Toast.LENGTH_SHORT).show();
             }
@@ -683,14 +700,14 @@ public class ImageTranslateActivity extends AppCompatActivity {
                         }
                     })
                     .addOnFailureListener(e -> {
-                        progressDialogRecognition.dismissRecognizingDialog();
                         Log.e(TAG, "Text recognition failed", e);
                         Toast.makeText(getApplicationContext(), "Could not get text from image", Toast.LENGTH_SHORT).show();
+                        progressDialogRecognition.dismissRecognizingDialog();
                     });
         } catch (Exception e) {
-            progressDialogRecognition.dismissRecognizingDialog();
             Log.e(TAG, "Failed to create InputImage", e);
             Toast.makeText(getApplicationContext(), "Could not get text from image", Toast.LENGTH_SHORT).show();
+            progressDialogRecognition.dismissRecognizingDialog();
         }
     }
 
@@ -703,27 +720,32 @@ public class ImageTranslateActivity extends AppCompatActivity {
                         recognizedText = text.getText();
 
                         if (recognizedText.isEmpty()) {
+                            progressDialog.dismiss();
                             japaneseRecognizer.process(inputImage)
                                     .addOnSuccessListener(textJapanese -> {
                                         recognizedText = textJapanese.getText();
 
                                         if (recognizedText.isEmpty()) {
+                                            progressDialog.dismiss();
                                             koreanRecognizer.process(inputImage)
                                                     .addOnSuccessListener(textKorean -> {
                                                         recognizedText = textKorean.getText();
 
                                                         if (recognizedText.isEmpty()) {
+                                                            progressDialog.dismiss();
                                                             devanagariRecognizer.process(inputImage)
                                                                     .addOnSuccessListener(textDevanagari -> {
                                                                         recognizedText = textDevanagari.getText();
 
-                                                                        progressDialog.dismiss();
                                                                         if (recognizedText.isEmpty()) {
-                                                                            Toast.makeText(getApplicationContext(), "Could not recognize text in image", Toast.LENGTH_SHORT).show();
+                                                                            Toast.makeText(this, "No text recognized in image", Toast.LENGTH_SHORT).show();
+                                                                            progressDialog.dismiss();
                                                                         } else {
+                                                                            progressDialog.dismiss();
                                                                             translate();
                                                                         }
                                                                     });
+
                                                         } else {
                                                             progressDialog.dismiss();
                                                             translate();

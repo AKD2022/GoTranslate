@@ -617,6 +617,8 @@ public class ConversationActivity extends AppCompatActivity {
                 public void onReadyForSpeech(Bundle params) {
                     if (track == 1) {
                         speakingDialog.setVisibility(View.VISIBLE);
+                        speakingDialog.setRotationX(0);
+                        speakingDialog.setRotationY(0);
                     } if (track == 2) {
                         speakingDialog.setRotationX(180);
                         speakingDialog.setRotationY(180);
