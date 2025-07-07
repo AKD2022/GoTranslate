@@ -27,4 +27,6 @@ skipping the process of installing a package, since it has already been installe
 Users can install a language package before they translate, this way when they translate, the process will take a shorter amount of time. 
 
 
-This app will soon be available on Google Play!
+# Update
+This project has failed for me. I have learned much from it and learned not to try and attempt to many things at once. The idea was good, but it was unoriginal and there are already many apps and programs that can translate text, speech, and image. I use this experience for learning, knowing what not to do for my next project. Currently, I am working on an AP Computer Science app, allowing students to practice AP computer science questions, while also having lessons. While working on my new project, I will not make the same mistakes as I have done for this project. 
+
